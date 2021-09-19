@@ -591,7 +591,7 @@ namespace Discord.API
 
             var bucket = new BucketIds();
 
-            return await SendJsonAsync<StageInstance>("POST", () => $"stage-instances", args, bucket, options: options).ConfigureAwait(false);
+            return await SendJsonAsync<StageInstance>("POST", () => "stage-instances", args, bucket, options: options).ConfigureAwait(false);
         }
 
         public async Task<StageInstance> ModifyStageInstanceAsync(ulong channelId, ModifyStageInstanceParams args, RequestOptions options = null)
@@ -917,7 +917,7 @@ namespace Discord.API
         {
             options = RequestOptions.CreateOrClone(options);
 
-            return await SendAsync<NitroStickerPacks>("GET", () => $"sticker-packs", new BucketIds(), options: options).ConfigureAwait(false);
+            return await SendAsync<NitroStickerPacks>("GET", () => "sticker-packs", new BucketIds(), options: options).ConfigureAwait(false);
         }
         public async Task<Sticker> CreateGuildStickerAsync(CreateStickerParams args, ulong guildId, RequestOptions options = null)
         {
