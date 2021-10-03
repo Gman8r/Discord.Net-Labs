@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace Discord.Commands
             int endPos = input.Length;
             var curPart = ParserPart.None;
             int lastArgEndPos = int.MinValue;
+            int lastArgStartPos = 0;
             var argList = ImmutableArray.CreateBuilder<TypeReaderResult>();
             var paramList = ImmutableArray.CreateBuilder<TypeReaderResult>();
             bool isEscaping = false;
@@ -149,7 +151,20 @@ namespace Discord.Commands
 
                     var typeReaderResult = await curParam.ParseAsync(context, argString, services).ConfigureAwait(false);
                     if (!typeReaderResult.IsSuccess && typeReaderResult.Error != CommandError.MultipleMatches)
-                        return ParseResult.FromError(typeReaderResult, curParam);
+                    {
+                        if (curParam.IsOptional
+                            || curParam.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute)))    // Skip skippable argument by putting in default value TODO Actually create skippable attribute and prevent it from being put on multiple/remainder args
+                        {
+                            argList.Add(TypeReaderResult.FromSuccess(curParam.DefaultValue));
+                            curParam = null;
+                            curPart = ParserPart.None;
+                            argBuilder.Clear();
+                            curPos = lastArgStartPos;
+                            continue;
+                        }
+                        else
+                            return ParseResult.FromError(typeReaderResult, curParam);
+                    }
 
                     if (curParam.IsMultiple)
                     {
@@ -165,6 +180,7 @@ namespace Discord.Commands
                         curPart = ParserPart.None;
                     }
                     argBuilder.Clear();
+                    lastArgStartPos = curPos;
                 }
             }
 
@@ -187,7 +203,7 @@ namespace Discord.Commands
                 var param = command.Parameters[i];
                 if (param.IsMultiple)
                     continue;
-                if (!param.IsOptional)
+                if (!param.IsOptional && !param.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute)))
                     return ParseResult.FromError(CommandError.BadArgCount, "The input text has too few parameters.");
                 argList.Add(TypeReaderResult.FromSuccess(param.DefaultValue));
             }
