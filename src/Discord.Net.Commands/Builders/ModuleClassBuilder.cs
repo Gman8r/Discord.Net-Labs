@@ -272,6 +272,19 @@ namespace Discord.Commands
                 }
             }
 
+            // Process attributes from parameter type as well
+            foreach (var attribute in paramInfo.ParameterType.GetCustomAttributes())
+            {
+                switch (attribute)
+                {
+                    case NamedArgumentTypeAttribute _:
+                        builder.IsRemainder = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             builder.ParameterType = paramType;
 
             if (builder.TypeReader == null)

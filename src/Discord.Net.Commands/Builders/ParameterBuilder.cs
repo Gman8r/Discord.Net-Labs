@@ -63,7 +63,7 @@ namespace Discord.Commands.Builders
             var commands = Command.Module.Service;
             if (type.GetTypeInfo().GetCustomAttribute<NamedArgumentTypeAttribute>() != null)
             {
-                IsRemainder = true;
+                //IsRemainder = true;
                 var reader = commands.GetTypeReaders(type)?.FirstOrDefault().Value;
                 if (reader == null)
                 {
