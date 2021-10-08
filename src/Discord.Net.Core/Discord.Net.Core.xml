@@ -131,6 +131,16 @@
                 A URL pointing to the guild's icon.
             </returns>
         </member>
+        <member name="M:Discord.CDN.GetGuildRoleIconUrl(System.UInt64,System.String)">
+            <summary>
+                Returns a guild role's icon URL.
+            </summary>
+            <param name="roleId">The role identifier.</param>
+            <param name="roleHash">The icon hash.</param>
+            <returns>
+                A URL pointing to the guild role's icon.
+            </returns>
+        </member>
         <member name="M:Discord.CDN.GetGuildSplashUrl(System.UInt64,System.String)">
             <summary>
                 Returns a guild splash URL.
@@ -496,6 +506,11 @@
         <member name="F:Discord.ActivityType.CustomStatus">
             <summary>
                 The user has set a custom status.
+            </summary>
+        </member>
+        <member name="F:Discord.ActivityType.Competing">
+            <summary>
+                The user is competing in a game.
             </summary>
         </member>
         <member name="T:Discord.CustomStatusGame">
@@ -1068,6 +1083,21 @@
         <member name="F:Discord.ActionType.StickerDeleted">
             <summary>
                 A sticker was deleted.
+            </summary>
+        </member>
+        <member name="F:Discord.ActionType.ThreadCreate">
+            <summary>
+                A thread was created.
+            </summary>
+        </member>
+        <member name="F:Discord.ActionType.ThreadUpdate">
+            <summary>
+                A thread was updated.
+            </summary>
+        </member>
+        <member name="F:Discord.ActionType.ThreadDelete">
+            <summary>
+                A thread was deleted.
             </summary>
         </member>
         <member name="T:Discord.IAuditLogData">
@@ -3585,12 +3615,12 @@
         </member>
         <member name="M:Discord.IGuild.GetPublicUpdatesChannelAsync(Discord.CacheMode,Discord.RequestOptions)">
             <summary>
-                Gets the text channel channel where admins and moderators of Community guilds receive notices from Discord.
+                Gets the text channel where admins and moderators of Community guilds receive notices from Discord.
             </summary>
             <param name="mode">The <see cref="T:Discord.CacheMode"/> that determines whether the object should be fetched from cache.</param>
             <param name="options">The options to be used when sending the request.</param>
             <returns>
-                A task that represents the asynchronous get operation. The task result contains the text channel channel where
+                A task that represents the asynchronous get operation. The task result contains the text channel where
                 admins and moderators of Community guilds receive notices from Discord; <see langword="null" /> if none is set.
             </returns>
         </member>
@@ -3820,7 +3850,7 @@
                 Downloads all users for this guild if the current list is incomplete.
             </summary>
             <remarks>
-                This method downloads all users found within this guild throught the Gateway and caches them.
+                This method downloads all users found within this guild through the Gateway and caches them.
             </remarks>
             <returns>
                 A task that represents the asynchronous download operation.
@@ -4549,6 +4579,11 @@
                 Gets or sets if this option is a subcommand or subcommand group type, these nested options will be the parameters.
             </summary>
         </member>
+        <member name="P:Discord.ApplicationCommandOptionProperties.ChannelTypes">
+            <summary>
+                Gets or sets the allowed channel types for this option.
+            </summary>
+        </member>
         <member name="T:Discord.ApplicationCommandOptionChoiceProperties">
             <summary>
                 Represents a choice for a <see cref="T:Discord.IApplicationCommandInteractionDataOption"/>. This class is used when making new commands.
@@ -4726,7 +4761,7 @@
         </member>
         <member name="F:Discord.MessageCommandBuilder.MaxNameLength">
             <summary> 
-                Returns the maximun length a commands name allowed by Discord
+                Returns the maximum length a commands name allowed by Discord
             </summary>
         </member>
         <member name="P:Discord.MessageCommandBuilder.Name">
@@ -4775,7 +4810,7 @@
         </member>
         <member name="F:Discord.UserCommandBuilder.MaxNameLength">
             <summary> 
-                Returns the maximun length a commands name allowed by Discord
+                Returns the maximum length a commands name allowed by Discord
             </summary>
         </member>
         <member name="P:Discord.UserCommandBuilder.Name">
@@ -4840,7 +4875,7 @@
                 The description of the command.
             </summary>
         </member>
-        <member name="P:Discord.IApplicationCommand.DefaultPermission">
+        <member name="P:Discord.IApplicationCommand.IsDefaultPermission">
             <summary>
                 Whether the command is enabled by default when the app is added to a guild.
             </summary>
@@ -4936,15 +4971,15 @@
         </member>
         <member name="P:Discord.IApplicationCommandOption.Description">
             <summary>
-                The discription of this command option, 1-100 character description.
+                The description of this command option, 1-100 character description.
             </summary>
         </member>
-        <member name="P:Discord.IApplicationCommandOption.Default">
+        <member name="P:Discord.IApplicationCommandOption.IsDefault">
             <summary>
                 The first required option for the user to complete--only one option can be default.
             </summary>
         </member>
-        <member name="P:Discord.IApplicationCommandOption.Required">
+        <member name="P:Discord.IApplicationCommandOption.IsRequired">
             <summary>
                 If the parameter is required or optional, default is <see langword="false"/>.
             </summary>
@@ -4957,6 +4992,11 @@
         <member name="P:Discord.IApplicationCommandOption.Options">
             <summary>
                 If the option is a subcommand or subcommand group type, this nested options will be the parameters.
+            </summary>
+        </member>
+        <member name="P:Discord.IApplicationCommandOption.ChannelTypes">
+            <summary>
+                The allowed channel types for this option.
             </summary>
         </member>
         <member name="T:Discord.IApplicationCommandOptionChoice">
@@ -5041,7 +5081,7 @@
             <summary>
                 Gets the original response for this interaction.
             </summary>
-            <param name="options">The request options for this async request.</param>
+            <param name="options">The request options for this <see langword="async"/> request.</param>
             <returns>A <see cref="T:Discord.IUserMessage"/> that represents the initial response.</returns>
         </member>
         <member name="M:Discord.IDiscordInteraction.ModifyOriginalResponseAsync(System.Action{Discord.MessageProperties},Discord.RequestOptions)">
@@ -5049,7 +5089,7 @@
                 Edits original response for this interaction.
             </summary>
             <param name="func">A delegate containing the properties to modify the message with.</param>
-            <param name="options">The request options for this async request.</param>
+            <param name="options">The request options for this <see langword="async"/> request.</param>
             <returns>A <see cref="T:Discord.IUserMessage"/> that represents the initial response.</returns>
         </member>
         <member name="M:Discord.IDiscordInteraction.DeferAsync(System.Boolean,Discord.RequestOptions)">
@@ -5062,7 +5102,7 @@
         </member>
         <member name="T:Discord.IDiscordInteractionData">
             <summary>
-                Represents an interface used to specify classes that they are a vaild dataype of a <see cref="T:Discord.IDiscordInteraction"/> class.
+                Represents an interface used to specify classes that they are a vaild data type of a <see cref="T:Discord.IDiscordInteraction"/> class.
             </summary>
         </member>
         <member name="T:Discord.InteractionResponseType">
@@ -5955,17 +5995,17 @@
             </summary>
         </member>
         <member name="F:Discord.SlashCommandBuilder.MaxNameLength">
-            <summary> 
-                Returns the maximun length a commands name allowed by Discord
+            <summary>
+                Returns the maximum length a commands name allowed by Discord
             </summary>
         </member>
         <member name="F:Discord.SlashCommandBuilder.MaxDescriptionLength">
-            <summary> 
-                Returns the maximum length of a commands description allowed by Discord. 
+            <summary>
+                Returns the maximum length of a commands description allowed by Discord.
             </summary>
         </member>
         <member name="F:Discord.SlashCommandBuilder.MaxOptionsCount">
-            <summary> 
+            <summary>
                 Returns the maximum count of command options allowed by Discord
             </summary>
         </member>
@@ -6019,7 +6059,7 @@
             <param name="value">The default permission value to set.</param>
             <returns>The current builder.</returns>
         </member>
-        <member name="M:Discord.SlashCommandBuilder.AddOption(System.String,Discord.ApplicationCommandOptionType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.Collections.Generic.List{Discord.SlashCommandOptionBuilder},Discord.ApplicationCommandOptionChoiceProperties[])">
+        <member name="M:Discord.SlashCommandBuilder.AddOption(System.String,Discord.ApplicationCommandOptionType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.Collections.Generic.List{Discord.SlashCommandOptionBuilder},System.Collections.Generic.List{Discord.ChannelType},Discord.ApplicationCommandOptionChoiceProperties[])">
             <summary>
                 Adds an option to the current slash command.
             </summary>
@@ -6030,6 +6070,7 @@
             <param name="isDefault">If this option is the default option.</param>
             <param name="isAutocomplete">If this option is set to autocompleate.</param>
             <param name="options">The options of the option to add.</param>
+            <param name="channelTypes">The allowed channel types for this option.</param>
             <param name="choices">The choices of this option.</param>
             <returns>The current builder.</returns>
         </member>
@@ -6039,7 +6080,7 @@
             </summary>
             <param name="name">The name of the option to add.</param>
             <param name="type">The type of this option.</param>
-            <param name="description">The sescription of this option.</param>
+            <param name="description">The description of this option.</param>
             <returns>The current builder.</returns>
         </member>
         <member name="M:Discord.SlashCommandBuilder.AddOption(Discord.SlashCommandOptionBuilder)">
@@ -6111,13 +6152,18 @@
                 Gets or sets if this option is a subcommand or subcommand group type, these nested options will be the parameters.
             </summary>
         </member>
+        <member name="P:Discord.SlashCommandOptionBuilder.ChannelTypes">
+            <summary>
+                Gets or sets the allowed channel types for this option.
+            </summary>
+        </member>
         <member name="M:Discord.SlashCommandOptionBuilder.Build">
             <summary>
                 Builds the current option.
             </summary>
             <returns>The built version of this option.</returns>
         </member>
-        <member name="M:Discord.SlashCommandOptionBuilder.AddOption(System.String,Discord.ApplicationCommandOptionType,System.String,System.Nullable{System.Boolean},System.Boolean,System.Collections.Generic.List{Discord.SlashCommandOptionBuilder},Discord.ApplicationCommandOptionChoiceProperties[])">
+        <member name="M:Discord.SlashCommandOptionBuilder.AddOption(System.String,Discord.ApplicationCommandOptionType,System.String,System.Nullable{System.Boolean},System.Boolean,System.Boolean,System.Collections.Generic.List{Discord.SlashCommandOptionBuilder},System.Collections.Generic.List{Discord.ChannelType},Discord.ApplicationCommandOptionChoiceProperties[])">
             <summary>
                 Adds an option to the current slash command.
             </summary>
@@ -6126,7 +6172,9 @@
             <param name="description">The description of this option.</param>
             <param name="required">If this option is required for this command.</param>
             <param name="isDefault">If this option is the default option.</param>
+            <param name="isAutocomplete">If this option supports autocomplete.</param>
             <param name="options">The options of the option to add.</param>
+            <param name="channelTypes">The allowed channel types for this option.</param>
             <param name="choices">The choices of this option.</param>
             <returns>The current builder.</returns>
         </member>
@@ -6151,6 +6199,13 @@
             </summary>
             <param name="name">The name of the choice.</param>
             <param name="value">The value of the choice.</param>
+            <returns>The current builder.</returns>
+        </member>
+        <member name="M:Discord.SlashCommandOptionBuilder.AddChannelType(Discord.ChannelType)">
+            <summary>
+                Adds a channnel type to the current option.
+            </summary>
+            <param name="channelType">The <see cref="T:Discord.ChannelType"/> to add.</param>
             <returns>The current builder.</returns>
         </member>
         <member name="M:Discord.SlashCommandOptionBuilder.WithName(System.String)">
@@ -6181,6 +6236,13 @@
             <param name="value">The value to set.</param>
             <returns>The current builder.</returns>
         </member>
+        <member name="M:Discord.SlashCommandOptionBuilder.WithAutocomplete(System.Boolean)">
+            <summary>
+                Sets the current builders autocomplete field.
+            </summary>
+            <param name="value">The value to set.</param>
+            <returns>The current builder.</returns>
+        </member>
         <member name="M:Discord.SlashCommandOptionBuilder.WithType(Discord.ApplicationCommandOptionType)">
             <summary>
                 Sets the current type of this builder.
@@ -6195,7 +6257,7 @@
         </member>
         <member name="P:Discord.SlashCommandProperties.Description">
             <summary>
-               The discription of this command.
+               The description of this command.
             </summary>
         </member>
         <member name="P:Discord.SlashCommandProperties.Options">
@@ -7576,6 +7638,14 @@
                 A string that contains the body of the message; note that this field may be empty if there is an embed.
             </returns>
         </member>
+        <member name="P:Discord.IMessage.CleanContent">
+            <summary>
+                Gets the clean content for this message.
+            </summary>
+            <returns>
+                A string that contains the body of the message stripped of mentions, markdown, emojis and pings; note that this field may be empty if there is an embed.
+            </returns>
+        </member>
         <member name="P:Discord.IMessage.Timestamp">
             <summary>
                 Gets the time this message was sent.
@@ -8231,15 +8301,15 @@
                 The message is an inline reply.
             </summary>
             <remarks>
-                Only available in API v8
+                Only available in API v8.
             </remarks>
         </member>
         <member name="F:Discord.MessageType.ApplicationCommand">
             <summary>
-                The message is an Application Command
+                The message is an Application Command.
             </summary>
             <remarks>
-                Only available in API v8
+                Only available in API v8.
             </remarks>
         </member>
         <member name="F:Discord.MessageType.ThreadStarterMessage">
@@ -8247,12 +8317,17 @@
                 The message that starts a thread.
             </summary>
             <remarks>
-                Only available in API v9
+                Only available in API v9.
             </remarks>
         </member>
         <member name="F:Discord.MessageType.GuildInviteReminder">
             <summary>
-                The message for a invite reminder
+                The message for a invite reminder.
+            </summary>
+        </member>
+        <member name="F:Discord.MessageType.ContextMenuCommand">
+            <summary>
+                The message for a context menu command.
             </summary>
         </member>
         <member name="T:Discord.ReactionMetadata">
@@ -8376,7 +8451,7 @@
                     If the <see cref="P:Discord.TimestampTag.Time"/> is null then the default 0 will be used.
                 </para>
             </summary>
-            <returns>A string thats compatable in a discord message, ex: <code>&lt;t:1625944201:f&gt;</code></returns>
+            <returns>A string thats compatible in a discord message, ex: <code>&lt;t:1625944201:f&gt;</code></returns>
         </member>
         <member name="M:Discord.TimestampTag.FromDateTime(System.DateTime,Discord.TimestampTagStyles)">
             <summary>
@@ -8747,7 +8822,7 @@
             <summary> If <c>true</c>, a user may stream video in a voice channel.</summary>
         </member>
         <member name="P:Discord.ChannelPermissions.ManageRoles">
-            <summary> If <c>true</c>, a user may adjust role permissions. This also implictly grants all other permissions.</summary>
+            <summary> If <c>true</c>, a user may adjust role permissions. This also implicitly grants all other permissions.</summary>
         </member>
         <member name="P:Discord.ChannelPermissions.ManageWebhooks">
             <summary> If <c>true</c>, a user may edit the webhooks for this channel.</summary>
@@ -8774,7 +8849,7 @@
             <summary> If <c>true</c>, a user may send messages in threads in this guild.</summary>
         </member>
         <member name="P:Discord.ChannelPermissions.StartEmbeddedActivities">
-            <summary> If <c>true</c>, a user launch application activites in voice channels in this guild.</summary>
+            <summary> If <c>true</c>, a user launch application activities in voice channels in this guild.</summary>
         </member>
         <member name="M:Discord.ChannelPermissions.#ctor(System.UInt64)">
             <summary> Creates a new <see cref="T:Discord.ChannelPermissions"/> with the provided packed value.</summary>
@@ -9191,7 +9266,7 @@
             <summary> If <c>true</c>, a user may send messages in threads in this guild. </summary>
         </member>
         <member name="P:Discord.GuildPermissions.StartEmbeddedActivities">
-            <summary> If <c>true</c>, a user launch application activites in voice channels in this guild. </summary>
+            <summary> If <c>true</c>, a user launch application activities in voice channels in this guild. </summary>
         </member>
         <member name="M:Discord.GuildPermissions.#ctor(System.UInt64)">
             <summary> Creates a new <see cref="T:Discord.GuildPermissions"/> with the provided packed value. </summary>
@@ -9365,7 +9440,7 @@
             <summary> If <c>true</c>, a user may send messages in threads in this guild. </summary>
         </member>
         <member name="P:Discord.OverwritePermissions.StartEmbeddedActivities">
-            <summary> If <c>true</c>, a user launch application activites in voice channels in this guild. </summary>
+            <summary> If <c>true</c>, a user launch application activities in voice channels in this guild. </summary>
         </member>
         <member name="M:Discord.OverwritePermissions.#ctor(System.UInt64,System.UInt64)">
             <summary> Creates a new OverwritePermissions with the provided allow and deny packed values. </summary>
@@ -9638,6 +9713,14 @@
                 A string containing the name of this role.
             </returns>
         </member>
+        <member name="P:Discord.IRole.Icon">
+            <summary>
+                Gets the icon of this role.
+            </summary>
+            <returns>
+                A string containing the hash of this role's icon.
+            </returns>
+        </member>
         <member name="P:Discord.IRole.Permissions">
             <summary>
                 Gets the permissions granted to members of this role.
@@ -9674,6 +9757,14 @@
             <param name="options">The options to be used when sending the request.</param>
             <returns>
                 A task that represents the asynchronous modification operation.
+            </returns>
+        </member>
+        <member name="M:Discord.IRole.GetIconUrl">
+            <summary>
+                Gets the image url of the icon role.
+            </summary>
+            <returns>
+                An image url of the icon role.
             </returns>
         </member>
         <member name="T:Discord.ReorderRoleProperties">
@@ -9845,7 +9936,7 @@
                 Deletes the current sticker.
             </summary>
             <remakrs>
-                The bot neeeds the MANAGE_EMOJIS_AND_STICKERS permission inside the guild in order to delete stickers.
+                The bot needs the MANAGE_EMOJIS_AND_STICKERS permission inside the guild in order to delete stickers.
             </remakrs>
             <param name="options">The options to be used when sending the request.</param>
             <returns>
@@ -9910,7 +10001,7 @@
                 A <see cref="T:Discord.StickerFormatType"/> with the format type of this sticker.
             </returns>
         </member>
-        <member name="P:Discord.ISticker.Available">
+        <member name="P:Discord.ISticker.IsAvailable">
             <summary>
                 Gets whether this guild sticker can be used, may be false due to loss of Server Boosts
             </summary>
@@ -11142,7 +11233,7 @@
                 Add multiple reactions to a message.
             </summary>
             <remarks>
-                This method does not bulk add reactions! It will send a request for each reaction inculded.
+                This method does not bulk add reactions! It will send a request for each reaction included.
             </remarks>
             <example>
             <code language="cs">
@@ -11187,7 +11278,7 @@
             <summary>
                 Sends an inline reply that references a message.
             </summary>
-            <param name="msg">The message that is being replyed on.</param>
+            <param name="msg">The message that is being replied on.</param>
             <param name="text">The message to be sent.</param>
             <param name="isTTS">Determines whether the message should be read aloud by Discord or not.</param>
             <param name="embed">The <see cref="F:Discord.EmbedType.Rich"/> <see cref="T:Discord.Embed"/> to be sent.</param>
@@ -11358,7 +11449,7 @@
             <summary> Returns a markdown-formatted string with underline formatting. </summary>
         </member>
         <member name="M:Discord.Format.Strikethrough(System.String)">
-            <summary> Returns a markdown-formatted string with strikethrough formatting. </summary>
+            <summary> Returns a markdown-formatted string with strike-through formatting. </summary>
         </member>
         <member name="M:Discord.Format.Spoiler(System.String)">
             <summary> Returns a string with spoiler formatting. </summary>
@@ -11388,6 +11479,13 @@
             </summary>
             <param name="text">The text to format.</param>
             <returns>Gets the formatted block quote text.</returns>
+        </member>
+        <member name="M:Discord.Format.StripMarkDown(System.String)">
+            <summary>
+            Remove discord supported markdown from text.
+            </summary>
+            <param name="text">The to remove markdown from.</param>
+            <returns>Gets the unformatted text.</returns>
         </member>
         <member name="F:Discord.GatewayIntents.None">
             <summary> This intent includes no events </summary>
@@ -12188,10 +12286,10 @@
         </member>
         <member name="P:Discord.RequestOptions.Timeout">
             <summary>
-                Gets or sets the maximum time to wait for for this request to complete.
+                Gets or sets the maximum time to wait for this request to complete.
             </summary>
             <remarks>
-                Gets or set the max time, in milliseconds, to wait for for this request to complete. If 
+                Gets or set the max time, in milliseconds, to wait for this request to complete. If 
                 <c>null</c>, a request will not time out. If a rate limit has been triggered for this request's bucket
                 and will not be unpaused in time, this request will fail immediately.
             </remarks>
@@ -12879,10 +12977,20 @@
         <member name="M:Discord.Utils.UrlValidation.Validate(System.String)">
             <summary>
             Not full URL validation right now. Just ensures protocol is present and that it's either http or https
+            <see cref="M:Discord.Utils.UrlValidation.ValidateButton(System.String)"/> should be used for url buttons
             </summary>
             <param name="url">url to validate before sending to Discord.</param>
             <exception cref="T:System.InvalidOperationException">A URL must include a protocol (http or https).</exception>
             <returns>true if url is valid by our standard, false if null, throws an error upon invalid </returns>
+        </member>
+        <member name="M:Discord.Utils.UrlValidation.ValidateButton(System.String)">
+            <summary>
+            Not full URL validation right now. Just Ensures the protocol is either http, https, or discord
+            <see cref="M:Discord.Utils.UrlValidation.Validate(System.String)"/> should be used everything other than url buttons
+            </summary>
+            <param name="url">the url to validate before sending to discord</param>
+            <exception cref="T:System.InvalidOperationException">A URL must include a protocol (either http, https, or discord).</exception>
+            <returns>true if the url is valid by our standard, false if null, throws an error upon invalid</returns>
         </member>
     </members>
 </doc>

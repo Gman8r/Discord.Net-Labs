@@ -22,19 +22,19 @@ namespace Discord
         string Name { get; }
 
         /// <summary>
-        ///     The discription of this command option, 1-100 character description.
+        ///     The description of this command option, 1-100 character description.
         /// </summary>
         string Description { get; }
 
         /// <summary>
         ///     The first required option for the user to complete--only one option can be default.
         /// </summary>
-        bool? Default { get; }
+        bool? IsDefault { get; }
 
         /// <summary>
         ///     If the parameter is required or optional, default is <see langword="false"/>.
         /// </summary>
-        bool? Required { get; }
+        bool? IsRequired { get; }
 
         /// <summary>
         ///     Choices for string and int types for the user to pick from.
@@ -45,5 +45,10 @@ namespace Discord
         ///     If the option is a subcommand or subcommand group type, this nested options will be the parameters.
         /// </summary>
         IReadOnlyCollection<IApplicationCommandOption>? Options { get; }
+
+        /// <summary>
+        ///     The allowed channel types for this option.
+        /// </summary>
+        IReadOnlyCollection<ChannelType>? ChannelTypes { get; }
     }
 }

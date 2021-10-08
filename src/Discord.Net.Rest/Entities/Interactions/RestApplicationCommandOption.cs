@@ -24,10 +24,10 @@ namespace Discord.Rest
         public string Description { get; private set; }
 
         /// <inheritdoc/>
-        public bool? Default { get; private set; }
+        public bool? IsDefault { get; private set; }
 
         /// <inheritdoc/>
-        public bool? Required { get; private set; }
+        public bool? IsRequired { get; private set; }
 
         /// <summary>
         ///     A collection of <see cref="RestApplicationCommandChoice"/>'s for this command.
@@ -38,6 +38,11 @@ namespace Discord.Rest
         ///     A collection of <see cref="RestApplicationCommandOption"/>'s for this command.
         /// </summary>
         public IReadOnlyCollection<RestApplicationCommandOption> Options { get; private set; }
+
+        /// <summary>
+        ///     The allowed channel types for this option.
+        /// </summary>
+        public IReadOnlyCollection<ChannelType> ChannelTypes { get; private set; }
 
         internal RestApplicationCommandOption() { }
 
@@ -55,18 +60,22 @@ namespace Discord.Rest
             Description = model.Description;
 
             if (model.Default.IsSpecified)
-                Default = model.Default.Value;
+                IsDefault = model.Default.Value;
 
             if (model.Required.IsSpecified)
-                Required = model.Required.Value;
+                IsRequired = model.Required.Value;
 
             Options = model.Options.IsSpecified
                 ? model.Options.Value.Select(x => Create(x)).ToImmutableArray()
-                : null;
+                : ImmutableArray.Create<RestApplicationCommandOption>();
 
             Choices = model.Choices.IsSpecified
                 ? model.Choices.Value.Select(x => new RestApplicationCommandChoice(x)).ToImmutableArray()
-                : null;
+                : ImmutableArray.Create<RestApplicationCommandChoice>();
+
+            ChannelTypes = model.ChannelTypes.IsSpecified
+                ? model.ChannelTypes.Value.ToImmutableArray()
+                : ImmutableArray.Create<ChannelType>();
         }
         #endregion
 

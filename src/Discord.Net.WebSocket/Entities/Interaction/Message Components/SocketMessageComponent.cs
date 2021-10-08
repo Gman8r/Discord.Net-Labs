@@ -131,7 +131,7 @@ namespace Discord.WebSocket
         ///     Updates the message which this component resides in with the type <see cref="InteractionResponseType.UpdateMessage"/>
         /// </summary>
         /// <param name="func">A delegate containing the properties to modify the message with.</param>
-        /// <param name="options">The request options for this async request.</param>
+        /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A task that represents the asynchronous operation of updating the message.</returns>
         public async Task UpdateAsync(Action<MessageProperties> func, RequestOptions options = null)
         {
@@ -245,9 +245,9 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFileAsync(
+            Stream fileStream,
+            string fileName,
             string text = null,
-            Stream fileStream = null,
-            string fileName = null,
             Embed[] embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
@@ -287,8 +287,8 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFileAsync(
+            string filePath,
             string text = null,
-            string filePath = null,
             string fileName = null,
             Embed[] embeds = null,
             bool isTTS = false,
@@ -330,7 +330,7 @@ namespace Discord.WebSocket
         ///     Defers an interaction and responds with type 5 (<see cref="InteractionResponseType.DeferredChannelMessageWithSource"/>)
         /// </summary>
         /// <param name="ephemeral"><see langword="true"/> to send this message ephemerally, otherwise <see langword="false"/>.</param>
-        /// <param name="options">The request options for this async request.</param>
+        /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation of acknowledging the interaction.
         /// </returns>
