@@ -251,6 +251,7 @@ namespace Discord.Commands
                         builder.TypeReader = GetTypeReader(service, paramType, typeReader.TypeReader, services);
                         break;
                     case ParamArrayAttribute _:
+                    case GreedyAttribute _:
                         builder.IsMultiple = true;
                         paramType = paramType.GetElementType();
                         break;

@@ -133,9 +133,10 @@ namespace Discord.Commands.Builders
             {
                 var lastParam = _parameters[_parameters.Count - 1];
 
-                var firstMultipleParam = _parameters.FirstOrDefault(x => x.IsMultiple);
-                if ((firstMultipleParam != null) && (firstMultipleParam != lastParam))
-                    throw new InvalidOperationException($"Only the last parameter in a command may have the Multiple flag. Parameter: {firstMultipleParam.Name} in {PrimaryAlias}");
+                // Greedy args says Goodbye
+                //var firstMultipleParam = _parameters.FirstOrDefault(x => x.IsMultiple);
+                //if ((firstMultipleParam != null) && (firstMultipleParam != lastParam))
+                //    throw new InvalidOperationException($"Only the last parameter in a command may have the Multiple flag. Parameter: {firstMultipleParam.Name} in {PrimaryAlias}");
 
                 var firstRemainderParam = _parameters.FirstOrDefault(x => x.IsRemainder);
                 if ((firstRemainderParam != null) && (firstRemainderParam != lastParam))

@@ -94,6 +94,11 @@
                 </code>
             </example>
         </member>
+        <member name="T:Discord.Commands.GreedyAttribute">
+            <summary>
+                Marks the input as greedy for the parser, parsing the input by parsing parameters from the input an adding them as elements until one isn't parseable as the item type
+            </summary>
+        </member>
         <member name="T:Discord.Commands.GroupAttribute">
             <summary>
                 Marks the module as a command group.
@@ -454,6 +459,11 @@
         <member name="T:Discord.Commands.RemarksAttribute">
             <summary>
                 Attaches remarks to your commands.
+            </summary>
+        </member>
+        <member name="T:Discord.Commands.SkippableAttribute">
+            <summary>
+                Marks the input as skippable by the parser, similar to an optional parameter without actually defining it as such in the function
             </summary>
         </member>
         <member name="T:Discord.Commands.SummaryAttribute">

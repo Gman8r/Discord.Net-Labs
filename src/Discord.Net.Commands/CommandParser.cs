@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +11,13 @@ namespace Discord.Commands
 {
     internal static class CommandParser
     {
+        // Taken from CommandInfo for my own nefarious misdeeds
+        private static readonly MethodInfo _convertParamsMethod = typeof(CommandInfo).GetTypeInfo().GetDeclaredMethod(nameof(ConvertParamsList));
+        private static readonly ConcurrentDictionary<Type, Func<IEnumerable<object>, object>> _arrayConverters = new ConcurrentDictionary<Type, Func<IEnumerable<object>, object>>();
+
+        private static T[] ConvertParamsList<T>(IEnumerable<object> paramsList)
+            => paramsList.Cast<T>().ToArray();
+
         private enum ParserPart
         {
             None,
@@ -25,6 +34,10 @@ namespace Discord.Commands
             int lastArgStartPos = 0;
             var argList = ImmutableArray.CreateBuilder<TypeReaderResult>();
             var paramList = ImmutableArray.CreateBuilder<TypeReaderResult>();
+            (ParameterInfo, List<TypeReaderResult>) currentGreedyArgs = (null, null);
+            List<ParameterInfo> currentGreedyParam = null;
+            bool inGreedyArgs = false;
+            bool reachedParams = false;
             bool isEscaping = false;
             char c, matchQuote = '\0';
 
@@ -46,6 +59,17 @@ namespace Discord.Commands
                     return value;
                 // or get the default pair of the default double quote
                 return '\"';
+            }
+
+            // Also taken from CommandInfo, convert collection to array
+            object GetTypeArray(Type type, IEnumerable<object> collection)
+            {
+                var func = _arrayConverters.GetOrAdd(type, t =>
+                {
+                    var method = _convertParamsMethod.MakeGenericMethod(t);
+                    return (Func<IEnumerable<object>, object>)method.CreateDelegate(typeof(Func<IEnumerable<object>, object>));
+                });
+                return func(collection);
             }
 
             for (int curPos = startPos; curPos <= endPos; curPos++)
@@ -97,8 +121,22 @@ namespace Discord.Commands
                         return ParseResult.FromError(CommandError.ParseFailed, "There must be at least one character of whitespace between arguments.");
                     else
                     {
-                        if (curParam == null)
-                            curParam = command.Parameters.Count > argList.Count ? command.Parameters[argList.Count] : null;
+                        inGreedyArgs = false;
+                        if (curParam == null && command.Parameters.Count > argList.Count)
+                        {
+                            curParam = command.Parameters[argList.Count];
+                            if (curParam != null && curParam.IsMultiple)
+                            {
+                                if (command.Parameters.Count - 1 == argList.Count)
+                                    reachedParams = true;
+                                else
+                                    inGreedyArgs = true;
+                            }
+                        }
+                        if (!inGreedyArgs)
+                            currentGreedyArgs = (null, null);
+                        else if (currentGreedyArgs.Item1 == null)
+                            currentGreedyArgs = (curParam, new List<TypeReaderResult>());
 
                         if (curParam != null && curParam.IsRemainder)
                         {
@@ -153,9 +191,19 @@ namespace Discord.Commands
                     if (!typeReaderResult.IsSuccess && typeReaderResult.Error != CommandError.MultipleMatches)
                     {
                         if (curParam.IsOptional
-                            || curParam.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute)))    // Skip skippable argument by putting in default value TODO Actually create skippable attribute and prevent it from being put on multiple/remainder args
+                            || inGreedyArgs
+                            || curParam.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute))) // Handle incorrect values that may be skippable or the end of a greedy chain
                         {
-                            argList.Add(TypeReaderResult.FromSuccess(curParam.DefaultValue));
+                            if (!inGreedyArgs)    // Skip skippable argument by putting in default value
+                                argList.Add(TypeReaderResult.FromSuccess(curParam.DefaultValue));
+                            else
+                            {
+                                argList.Add(TypeReaderResult.FromSuccess(GetTypeArray(currentGreedyArgs.Item1.Type,
+                                    currentGreedyArgs.Item2.Select(a => a.BestMatch))));
+                                currentGreedyArgs = (null, null);
+                                inGreedyArgs = false;
+                            }
+                            // Reset to rereading the previous argument
                             curParam = null;
                             curPart = ParserPart.None;
                             argBuilder.Clear();
@@ -164,6 +212,15 @@ namespace Discord.Commands
                         }
                         else
                             return ParseResult.FromError(typeReaderResult, curParam);
+                    }
+                    else if (typeReaderResult.IsSuccess && inGreedyArgs) // Add to greedy arg list
+                    {
+                        currentGreedyArgs.Item2.Add(typeReaderResult);
+                        curParam = null;
+                        curPart = ParserPart.None;
+                        argBuilder.Clear();
+                        lastArgStartPos = curPos;
+                        continue;
                     }
 
                     if (curParam.IsMultiple)
@@ -196,6 +253,13 @@ namespace Discord.Commands
                 return ParseResult.FromError(CommandError.ParseFailed, "Input text may not end on an incomplete escape.");
             if (curPart == ParserPart.QuotedParameter)
                 return ParseResult.FromError(CommandError.ParseFailed, "A quoted parameter is incomplete.");
+
+            // Wrap up greedy collection if we're doing one
+            if (currentGreedyArgs.Item2?.Any() ?? false)
+            {
+                argList.Add(TypeReaderResult.FromSuccess(GetTypeArray(currentGreedyArgs.Item1.Type,
+                    currentGreedyArgs.Item2.Select(a => a.BestMatch))));
+            }
 
             //Add missing optionals
             for (int i = argList.Count; i < command.Parameters.Count; i++)
