@@ -40,6 +40,7 @@ namespace Discord.Commands
             bool reachedParams = false;
             bool isEscaping = false;
             char c, matchQuote = '\0';
+            var failedParses = new List<ParseResult>();
 
             // local helper functions
             bool IsOpenQuote(IReadOnlyDictionary<char, char> dict, char ch)
@@ -203,6 +204,8 @@ namespace Discord.Commands
                                 currentGreedyArgs = (null, null);
                                 inGreedyArgs = false;
                             }
+                            // Add to our list of failed optional parameters, so the first one is returned if the command fails
+                            failedParses.Add(ParseResult.FromError(typeReaderResult, curParam));
                             // Reset to rereading the previous argument
                             curParam = null;
                             curPart = ParserPart.None;
@@ -211,7 +214,10 @@ namespace Discord.Commands
                             continue;
                         }
                         else
-                            return ParseResult.FromError(typeReaderResult, curParam);
+                        {
+                            failedParses.Add(ParseResult.FromError(typeReaderResult, curParam));
+                            return failedParses.First();
+                        }
                     }
                     else if (typeReaderResult.IsSuccess && inGreedyArgs) // Add to greedy arg list
                     {
@@ -245,7 +251,10 @@ namespace Discord.Commands
             {
                 var typeReaderResult = await curParam.ParseAsync(context, argBuilder.ToString(), services).ConfigureAwait(false);
                 if (!typeReaderResult.IsSuccess)
-                    return ParseResult.FromError(typeReaderResult, curParam);
+                {
+                    failedParses.Add(ParseResult.FromError(typeReaderResult, curParam));
+                    return failedParses.First();
+                }
                 argList.Add(typeReaderResult);
             }
 
