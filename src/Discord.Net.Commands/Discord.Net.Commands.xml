@@ -140,6 +140,11 @@
             as a collection of named arguments matching to its properties.
             </summary>
         </member>
+        <member name="T:Discord.Commands.OptionalAttribute">
+            <summary>
+                Marks the input as skippable by the parser, similar to an optional parameter without actually defining it as such in the function
+            </summary>
+        </member>
         <member name="T:Discord.Commands.OverrideTypeReaderAttribute">
             <summary>
                 Marks the <see cref="T:System.Type"/> to be read by the specified <see cref="T:Discord.Commands.TypeReader"/>.
@@ -459,11 +464,6 @@
         <member name="T:Discord.Commands.RemarksAttribute">
             <summary>
                 Attaches remarks to your commands.
-            </summary>
-        </member>
-        <member name="T:Discord.Commands.SkippableAttribute">
-            <summary>
-                Marks the input as skippable by the parser, similar to an optional parameter without actually defining it as such in the function
             </summary>
         </member>
         <member name="T:Discord.Commands.SummaryAttribute">
@@ -1091,6 +1091,11 @@
         <member name="P:Discord.Commands.ParameterInfo.IsOptional">
             <summary>
                 Gets a value that indicates whether this parameter is optional or not.
+            </summary>
+        </member>
+        <member name="P:Discord.Commands.ParameterInfo.IsGreedy">
+            <summary>
+                Gets a value that indicates whether this parameter is a greedy collection.
             </summary>
         </member>
         <member name="P:Discord.Commands.ParameterInfo.IsRemainder">

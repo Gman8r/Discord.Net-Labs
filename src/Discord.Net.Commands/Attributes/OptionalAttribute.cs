@@ -6,7 +6,7 @@ namespace Discord.Commands
     ///     Marks the input as skippable by the parser, similar to an optional parameter without actually defining it as such in the function
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
-    public class SkippableAttribute : Attribute
+    public class OptionalAttribute : Attribute
     {
     }
 }

@@ -18,6 +18,7 @@ namespace Discord.Commands.Builders
 
         public TypeReader TypeReader { get; set; }
         public bool IsOptional { get; set; }
+        public bool IsGreedy { get; set; }
         public bool IsRemainder { get; set; }
         public bool IsMultiple { get; set; }
         public object DefaultValue { get; set; }
@@ -100,6 +101,11 @@ namespace Discord.Commands.Builders
         public ParameterBuilder WithDefault(object defaultValue)
         {
             DefaultValue = defaultValue;
+            return this;
+        }
+        public ParameterBuilder WithIsGreedy(bool isGreedy)
+        {
+            IsGreedy = isGreedy;
             return this;
         }
         public ParameterBuilder WithIsOptional(bool isOptional)

@@ -32,6 +32,10 @@ namespace Discord.Commands
         /// </summary>
         public bool IsOptional { get; }
         /// <summary>
+        ///     Gets a value that indicates whether this parameter is a greedy collection.
+        /// </summary>
+        public bool IsGreedy { get; }
+        /// <summary>
         ///     Gets a value that indicates whether this parameter is a remainder parameter or not.
         /// </summary>
         public bool IsRemainder { get; }
@@ -61,6 +65,7 @@ namespace Discord.Commands
             Name = builder.Name;
             Summary = builder.Summary;
             IsOptional = builder.IsOptional;
+            IsGreedy = builder.IsGreedy;
             IsRemainder = builder.IsRemainder;
             IsMultiple = builder.IsMultiple;
 

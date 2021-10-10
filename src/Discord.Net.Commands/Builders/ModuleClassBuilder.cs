@@ -237,7 +237,9 @@ namespace Discord.Commands
 
             builder.Name = paramInfo.Name;
 
-            builder.IsOptional = paramInfo.IsOptional;
+            builder.IsOptional = paramInfo.IsOptional
+                || paramInfo.CustomAttributes.Any(a => a.AttributeType == typeof(OptionalAttribute));
+            builder.IsGreedy = paramInfo.CustomAttributes.Any(a => a.AttributeType == typeof(GreedyAttribute));
             builder.DefaultValue = paramInfo.HasDefaultValue ? paramInfo.DefaultValue : null;
 
             foreach (var attribute in attributes)

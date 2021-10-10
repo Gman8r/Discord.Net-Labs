@@ -36,8 +36,6 @@ namespace Discord.Commands
             var paramList = ImmutableArray.CreateBuilder<TypeReaderResult>();
             (ParameterInfo, List<TypeReaderResult>) currentGreedyArgs = (null, null);
             List<ParameterInfo> currentGreedyParam = null;
-            bool inGreedyArgs = false;
-            bool reachedParams = false;
             bool isEscaping = false;
             char c, matchQuote = '\0';
             var failedParses = new List<ParseResult>();
@@ -122,19 +120,10 @@ namespace Discord.Commands
                         return ParseResult.FromError(CommandError.ParseFailed, "There must be at least one character of whitespace between arguments.");
                     else
                     {
-                        inGreedyArgs = false;
-                        if (curParam == null && command.Parameters.Count > argList.Count)
-                        {
-                            curParam = command.Parameters[argList.Count];
-                            if (curParam != null && curParam.IsMultiple)
-                            {
-                                if (command.Parameters.Count - 1 == argList.Count)
-                                    reachedParams = true;
-                                else
-                                    inGreedyArgs = true;
-                            }
-                        }
-                        if (!inGreedyArgs)
+                        if (curParam == null)
+                            curParam = command.Parameters.Count > argList.Count ? command.Parameters[argList.Count] : null;
+
+                        if (!curParam.IsGreedy)
                             currentGreedyArgs = (null, null);
                         else if (currentGreedyArgs.Item1 == null)
                             currentGreedyArgs = (curParam, new List<TypeReaderResult>());
@@ -192,17 +181,15 @@ namespace Discord.Commands
                     if (!typeReaderResult.IsSuccess && typeReaderResult.Error != CommandError.MultipleMatches)
                     {
                         if (curParam.IsOptional
-                            || inGreedyArgs
-                            || curParam.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute))) // Handle incorrect values that may be skippable or the end of a greedy chain
+                            || curParam.IsGreedy) // Handle incorrect values that may be skippable or the end of a greedy chain
                         {
-                            if (!inGreedyArgs)    // Skip skippable argument by putting in default value
+                            if (!curParam.IsGreedy)    // Skip skippable argument by putting in default value
                                 argList.Add(TypeReaderResult.FromSuccess(curParam.DefaultValue));
                             else
                             {
                                 argList.Add(TypeReaderResult.FromSuccess(GetTypeArray(currentGreedyArgs.Item1.Type,
                                     currentGreedyArgs.Item2.Select(a => a.BestMatch))));
                                 currentGreedyArgs = (null, null);
-                                inGreedyArgs = false;
                             }
                             // Add to our list of failed optional parameters, so the first one is returned if the command fails
                             failedParses.Add(ParseResult.FromError(typeReaderResult, curParam));
@@ -219,7 +206,7 @@ namespace Discord.Commands
                             return failedParses.First();
                         }
                     }
-                    else if (typeReaderResult.IsSuccess && inGreedyArgs) // Add to greedy arg list
+                    else if (typeReaderResult.IsSuccess && curParam.IsGreedy) // Add to greedy arg list
                     {
                         currentGreedyArgs.Item2.Add(typeReaderResult);
                         curParam = null;
@@ -274,9 +261,9 @@ namespace Discord.Commands
             for (int i = argList.Count; i < command.Parameters.Count; i++)
             {
                 var param = command.Parameters[i];
-                if (param.IsMultiple)
+                if (param.IsMultiple && !param.IsGreedy)
                     continue;
-                if (!param.IsOptional && !param.Attributes.Any(a => a.GetType() == typeof(SkippableAttribute)))
+                if (!param.IsOptional && !param.IsGreedy)
                     return ParseResult.FromError(CommandError.BadArgCount, "The input text has too few parameters.");
                 argList.Add(TypeReaderResult.FromSuccess(param.DefaultValue));
             }
