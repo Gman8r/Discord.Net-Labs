@@ -16,6 +16,7 @@ namespace Discord.Rest
         private long _timestampTicks;
         private ImmutableArray<RestReaction> _reactions = ImmutableArray.Create<RestReaction>();
         private ImmutableArray<RestUser> _userMentions = ImmutableArray.Create<RestUser>();
+        private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
 
         /// <inheritdoc />
         public IMessageChannel Channel { get; }
@@ -48,7 +49,7 @@ namespace Discord.Rest
         /// <summary>
         ///     Gets a collection of the <see cref="Attachment"/>'s on the message.
         /// </summary>
-        public virtual IReadOnlyCollection<Attachment> Attachments => ImmutableArray.Create<Attachment>();
+        public IReadOnlyCollection<Attachment> Attachments => _attachments;
         /// <summary>
         ///     Gets a collection of the <see cref="Embed"/>'s on the message.
         /// </summary>
@@ -225,6 +226,22 @@ namespace Discord.Rest
                             newMentions.Add(RestUser.Create(Discord, val));
                     }
                     _userMentions = newMentions.ToImmutable();
+                }
+            }
+
+            if (model.Attachments.IsSpecified)
+            {
+                var value = model.Attachments.Value;
+                if (value.Length > 0)
+                {
+                    var newAttachments = ImmutableArray.CreateBuilder<Attachment>(value.Length);
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        var val = value[i];
+                        if (val != null)
+                            newAttachments.Add(Attachment.Create(val));
+                    }
+                    _attachments = newAttachments.ToImmutable();
                 }
             }
         }

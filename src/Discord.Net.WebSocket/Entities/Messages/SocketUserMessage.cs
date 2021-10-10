@@ -18,7 +18,6 @@ namespace Discord.WebSocket
         private bool _isMentioningEveryone, _isTTS, _isPinned;
         private long? _editedTimestampTicks;
         private IUserMessage _referencedMessage;
-        private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
         private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
         private ImmutableArray<ITag> _tags = ImmutableArray.Create<ITag>();
         private ImmutableArray<SocketRole> _roleMentions = ImmutableArray.Create<SocketRole>();
@@ -34,8 +33,6 @@ namespace Discord.WebSocket
         public override DateTimeOffset? EditedTimestamp => DateTimeUtils.FromTicks(_editedTimestampTicks);
         /// <inheritdoc />
         public override bool MentionedEveryone => _isMentioningEveryone;
-        /// <inheritdoc />
-        public override IReadOnlyCollection<Attachment> Attachments => _attachments;
         /// <inheritdoc />
         public override IReadOnlyCollection<Embed> Embeds => _embeds;
         /// <inheritdoc />
@@ -76,20 +73,6 @@ namespace Discord.WebSocket
                 _isMentioningEveryone = model.MentionEveryone.Value;
             if (model.RoleMentions.IsSpecified)
                 _roleMentions = model.RoleMentions.Value.Select(x => guild.GetRole(x)).ToImmutableArray();
-
-            if (model.Attachments.IsSpecified)
-            {
-                var value = model.Attachments.Value;
-                if (value.Length > 0)
-                {
-                    var attachments = ImmutableArray.CreateBuilder<Attachment>(value.Length);
-                    for (int i = 0; i < value.Length; i++)
-                        attachments.Add(Attachment.Create(value[i]));
-                    _attachments = attachments.ToImmutable();
-                }
-                else
-                    _attachments = ImmutableArray.Create<Attachment>();
-            }
 
             if (model.Embeds.IsSpecified)
             {

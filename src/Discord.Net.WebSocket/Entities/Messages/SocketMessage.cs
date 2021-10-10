@@ -18,6 +18,7 @@ namespace Discord.WebSocket
         private long _timestampTicks;
         private readonly List<SocketReaction> _reactions = new List<SocketReaction>();
         private ImmutableArray<SocketUser> _userMentions = ImmutableArray.Create<SocketUser>();
+        private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
 
         /// <summary>
         ///     Gets the author of this message.
@@ -74,13 +75,6 @@ namespace Discord.WebSocket
         public MessageType Type { get; private set; }
 
         /// <summary>
-        ///     Returns all attachments included in this message.
-        /// </summary>
-        /// <returns>
-        ///     Collection of attachments.
-        /// </returns>
-        public virtual IReadOnlyCollection<Attachment> Attachments => ImmutableArray.Create<Attachment>();
-        /// <summary>
         ///     Returns all embeds included in this message.
         /// </summary>
         /// <returns>
@@ -114,6 +108,13 @@ namespace Discord.WebSocket
         ///     Collection of WebSocket-based users.
         /// </returns>
         public IReadOnlyCollection<SocketUser> MentionedUsers => ImmutableArray.Create<SocketUser>();
+        /// <summary>
+        ///     Returns the attachments included in this message.
+        /// </summary>
+        /// <returns>
+        ///     Collection of attachments.
+        /// </returns>
+        public IReadOnlyCollection<Attachment> Attachments => _attachments;
 
         /// <inheritdoc />
         public DateTimeOffset Timestamp => DateTimeUtils.FromTicks(_timestampTicks);
@@ -251,6 +252,19 @@ namespace Discord.WebSocket
                     }
                     _userMentions = newMentions.ToImmutable();
                 }
+            }
+            if (model.Attachments.IsSpecified)
+            {
+                var value = model.Attachments.Value;
+                if (value.Length > 0)
+                {
+                    var attachments = ImmutableArray.CreateBuilder<Attachment>(value.Length);
+                    for (int i = 0; i < value.Length; i++)
+                        attachments.Add(Attachment.Create(value[i]));
+                    _attachments = attachments.ToImmutable();
+                }
+                else
+                    _attachments = ImmutableArray.Create<Attachment>();
             }
 
             if (model.Flags.IsSpecified)
