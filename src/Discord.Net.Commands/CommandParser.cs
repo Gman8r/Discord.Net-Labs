@@ -122,11 +122,13 @@ namespace Discord.Commands
                     {
                         if (curParam == null)
                             curParam = command.Parameters.Count > argList.Count ? command.Parameters[argList.Count] : null;
-
-                        if (!curParam.IsGreedy)
-                            currentGreedyArgs = (null, null);
-                        else if (currentGreedyArgs.Item1 == null)
-                            currentGreedyArgs = (curParam, new List<TypeReaderResult>());
+                        if (curParam != null)
+                        {
+                            if (!curParam.IsGreedy)
+                                currentGreedyArgs = (null, null);
+                            else if (currentGreedyArgs.Item1 == null)
+                                currentGreedyArgs = (curParam, new List<TypeReaderResult>());
+                        }
 
                         if (curParam != null && curParam.IsRemainder)
                         {
