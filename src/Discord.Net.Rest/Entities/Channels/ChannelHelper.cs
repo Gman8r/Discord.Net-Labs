@@ -388,6 +388,13 @@ namespace Discord.Rest
             return RestUserMessage.Create(client, channel, msgModel.Author.IsSpecified ? RestUser.Create(client, msgModel.Author.Value) : client.CurrentUser, msgModel);
         }
 
+        public static async Task<RestUserMessage> ModifyMessageWithFileAsync(IMessage message, Stream stream, string fileName, Action<MessageProperties> func,
+            BaseDiscordClient client, RequestOptions options)
+        {
+            var msgModel = await MessageHelper.ModifyWithFileAsync(message, client, stream, fileName, func, options).ConfigureAwait(false);
+            return RestUserMessage.Create(client, message.Channel, msgModel.Author.IsSpecified ? RestUser.Create(client, msgModel.Author.Value) : client.CurrentUser, msgModel);
+        }
+
         public static Task DeleteMessageAsync(IMessageChannel channel, ulong messageId, BaseDiscordClient client,
             RequestOptions options)
             => MessageHelper.DeleteAsync(channel.Id, messageId, client, options);

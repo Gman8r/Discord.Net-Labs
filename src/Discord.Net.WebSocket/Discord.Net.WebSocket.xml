@@ -4809,6 +4809,11 @@
             <exception cref="T:System.InvalidOperationException">Only the author of a message may modify the message.</exception>
             <exception cref="T:System.ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="F:Discord.DiscordConfig.MaxMessageSize"/>.</exception>
         </member>
+        <member name="M:Discord.WebSocket.SocketUserMessage.ModifyWithFileAsync(System.IO.Stream,System.String,System.Action{Discord.MessageProperties},Discord.RequestOptions)">
+            <inheritdoc />
+            <exception cref="T:System.InvalidOperationException">Only the author of a message may modify the message.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="F:Discord.DiscordConfig.MaxMessageSize"/>.</exception>
+        </member>
         <member name="M:Discord.WebSocket.SocketUserMessage.PinAsync(Discord.RequestOptions)">
             <inheritdoc />
         </member>

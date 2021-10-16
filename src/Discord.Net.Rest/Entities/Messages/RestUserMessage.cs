@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Model = Discord.API.Message;
 
@@ -120,6 +121,13 @@ namespace Discord.Rest
         public async Task ModifyAsync(Action<MessageProperties> func, RequestOptions options = null)
         {
             var model = await MessageHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
+            Update(model);
+        }
+
+        /// <inheritdoc />
+        public async Task ModifyWithFileAsync(Stream stream, string fileName, Action<MessageProperties> func, RequestOptions options = null)
+        {
+            var model = await MessageHelper.ModifyWithFileAsync(this, Discord, stream, fileName, func, options).ConfigureAwait(false);
             Update(model);
         }
 

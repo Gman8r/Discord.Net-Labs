@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Model = Discord.API.Message;
@@ -156,6 +157,12 @@ namespace Discord.WebSocket
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         public Task ModifyAsync(Action<MessageProperties> func, RequestOptions options = null)
             => MessageHelper.ModifyAsync(this, Discord, func, options);
+
+        /// <inheritdoc />
+        /// <exception cref="InvalidOperationException">Only the author of a message may modify the message.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
+        public Task ModifyWithFileAsync(Stream stream, string fileName, Action<MessageProperties> func, RequestOptions options = null)
+            => MessageHelper.ModifyWithFileAsync(this, Discord, stream, fileName, func, options);
 
         /// <inheritdoc />
         public Task PinAsync(RequestOptions options = null)

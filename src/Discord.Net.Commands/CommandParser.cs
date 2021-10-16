@@ -204,7 +204,7 @@ namespace Discord.Commands
                         }
                         else
                         {
-                            failedParses.Add(ParseResult.FromError(typeReaderResult, curParam));
+                            failedParses.Add(ParseResult.FromError(typeReaderResult, curParam, argList, paramList));
                             return failedParses.First();
                         }
                     }
