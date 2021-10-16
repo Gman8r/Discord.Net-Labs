@@ -7946,6 +7946,26 @@
                 A task that represents the asynchronous modification operation.
             </returns>
         </member>
+        <member name="M:Discord.IUserMessage.ModifyWithFileAsync(System.IO.Stream,System.String,System.Action{Discord.MessageProperties},Discord.RequestOptions)">
+            <summary>
+                Modifies this message and attaches a file, replacing replacing the old attachment(s).
+            </summary>
+            <remarks>
+                This method modifies this message with the specified properties. To see an example of this
+                method and what properties are available, please refer to <see cref="T:Discord.MessageProperties"/>.
+            </remarks>
+            <example>
+                <para>The following example replaces the content of the message with <c>Hello World!</c>.</para>
+                <code language="cs">
+                await msg.ModifyAsync(x =&gt; x.Content = "Hello World!");
+                </code>
+            </example>
+            <param name="func">A delegate containing the properties to modify the message with.</param>
+            <param name="options">The options to be used when sending the request.</param>
+            <returns>
+                A task that represents the asynchronous modification operation.
+            </returns>
+        </member>
         <member name="M:Discord.IUserMessage.PinAsync(Discord.RequestOptions)">
             <summary>
                 Adds this message to its channel's pinned messages.
@@ -8162,7 +8182,12 @@
                 Gets the Guild ID of the original message.
             </summary>
         </member>
-        <member name="M:Discord.MessageReference.#ctor(System.Nullable{System.UInt64},System.Nullable{System.UInt64},System.Nullable{System.UInt64})">
+        <member name="P:Discord.MessageReference.FailIfNotExists">
+            <summary>
+                Gets whether the operation will fail if the message does not exist
+            </summary>
+        </member>
+        <member name="M:Discord.MessageReference.#ctor(System.Nullable{System.UInt64},System.Nullable{System.UInt64},System.Nullable{System.UInt64},System.Nullable{System.Boolean})">
             <summary>
                 Initializes a new instance of the <see cref="T:Discord.MessageReference"/> class.
             </summary>
@@ -8174,6 +8199,9 @@
             </param>
             <param name="guildId">
                 The ID of the guild that will be referenced. It will be validated if sent.
+            </param>
+            <param name="failIfNotExists">
+                Whether the operation will fail if the message does not exist
             </param>
         </member>
         <member name="T:Discord.MessageSource">
@@ -11274,7 +11302,7 @@
             <seealso cref="M:Discord.IMessage.RemoveReactionAsync(Discord.IEmote,Discord.IUser,Discord.RequestOptions)"/>
             <seealso cref="T:Discord.IEmote"/>
         </member>
-        <member name="M:Discord.MessageExtensions.ReplyAsync(Discord.IUserMessage,System.String,System.Boolean,Discord.Embed,Discord.AllowedMentions,Discord.RequestOptions,Discord.MessageComponent,Discord.ISticker[],Discord.Embed[])">
+        <member name="M:Discord.MessageExtensions.ReplyAsync(Discord.IUserMessage,System.String,System.Boolean,Discord.Embed,Discord.AllowedMentions,Discord.RequestOptions,Discord.MessageComponent,Discord.ISticker[],Discord.Embed[],System.Boolean)">
             <summary>
                 Sends an inline reply that references a message.
             </summary>

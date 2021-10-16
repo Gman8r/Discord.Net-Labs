@@ -140,7 +140,8 @@ namespace Discord.Rest
                 {
                     GuildId = model.Reference.Value.GuildId,
                     InternalChannelId = model.Reference.Value.ChannelId,
-                    MessageId = model.Reference.Value.MessageId
+                    MessageId = model.Reference.Value.MessageId,
+                    FailIfNotExists = model.Reference.Value.FailIfNotExists,
                 };
             }
 
