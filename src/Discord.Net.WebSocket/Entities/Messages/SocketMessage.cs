@@ -18,7 +18,6 @@ namespace Discord.WebSocket
         private long _timestampTicks;
         private readonly List<SocketReaction> _reactions = new List<SocketReaction>();
         private ImmutableArray<SocketUser> _userMentions = ImmutableArray.Create<SocketUser>();
-        private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
 
         /// <summary>
         ///     Gets the author of this message.
@@ -68,12 +67,24 @@ namespace Discord.WebSocket
         /// <inheritdoc/>
         public IReadOnlyCollection<ActionRowComponent> Components { get; private set; }
 
+        /// <summary>
+        ///     Gets the interaction this message is a response to.
+        /// </summary>
+        public MessageInteraction<SocketUser> Interaction { get; private set; }
+
         /// <inheritdoc />
         public MessageFlags? Flags { get; private set; }
 
         /// <inheritdoc/>
         public MessageType Type { get; private set; }
 
+        /// <summary>
+        ///     Returns all attachments included in this message.
+        /// </summary>
+        /// <returns>
+        ///     Collection of attachments.
+        /// </returns>
+        public virtual IReadOnlyCollection<Attachment> Attachments => ImmutableArray.Create<Attachment>();
         /// <summary>
         ///     Returns all embeds included in this message.
         /// </summary>
@@ -107,15 +118,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Collection of WebSocket-based users.
         /// </returns>
-        public IReadOnlyCollection<SocketUser> MentionedUsers => ImmutableArray.Create<SocketUser>();
-        /// <summary>
-        ///     Returns the attachments included in this message.
-        /// </summary>
-        /// <returns>
-        ///     Collection of attachments.
-        /// </returns>
-        public IReadOnlyCollection<Attachment> Attachments => _attachments;
-
+        public IReadOnlyCollection<SocketUser> MentionedUsers => _userMentions; 
         /// <inheritdoc />
         public DateTimeOffset Timestamp => DateTimeUtils.FromTicks(_timestampTicks);
 
@@ -178,8 +181,7 @@ namespace Discord.WebSocket
                 {
                     GuildId = model.Reference.Value.GuildId,
                     InternalChannelId = model.Reference.Value.ChannelId,
-                    MessageId = model.Reference.Value.MessageId,
-                    FailIfNotExists = model.Reference.Value.FailIfNotExists
+                    MessageId = model.Reference.Value.MessageId
                 };
             }
 
@@ -254,18 +256,13 @@ namespace Discord.WebSocket
                     _userMentions = newMentions.ToImmutable();
                 }
             }
-            if (model.Attachments.IsSpecified)
+
+            if (model.Interaction.IsSpecified)
             {
-                var value = model.Attachments.Value;
-                if (value.Length > 0)
-                {
-                    var attachments = ImmutableArray.CreateBuilder<Attachment>(value.Length);
-                    for (int i = 0; i < value.Length; i++)
-                        attachments.Add(Attachment.Create(value[i]));
-                    _attachments = attachments.ToImmutable();
-                }
-                else
-                    _attachments = ImmutableArray.Create<Attachment>();
+                Interaction = new MessageInteraction<SocketUser>(model.Interaction.Value.Id,
+                    model.Interaction.Value.Type,
+                    model.Interaction.Value.Name,
+                    SocketGlobalUser.Create(Discord, state, model.Interaction.Value.User));
             }
 
             if (model.Flags.IsSpecified)
@@ -304,6 +301,9 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         IReadOnlyCollection<IMessageComponent> IMessage.Components => Components;
+
+        /// <inheritdoc/>
+        IMessageInteraction IMessage.Interaction => Interaction;
 
         /// <inheritdoc />
         IReadOnlyCollection<IStickerItem> IMessage.Stickers => Stickers;

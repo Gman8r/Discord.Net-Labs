@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Model = Discord.API.ApplicationCommandOption;
 
 namespace Discord.Rest
@@ -29,6 +26,12 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public bool? IsRequired { get; private set; }
 
+        /// <inheritdoc/>
+        public double? MinValue { get; private set; }
+
+        /// <inheritdoc/>
+        public double? MaxValue { get; private set; }
+
         /// <summary>
         ///     A collection of <see cref="RestApplicationCommandChoice"/>'s for this command.
         /// </summary>
@@ -43,6 +46,7 @@ namespace Discord.Rest
         ///     The allowed channel types for this option.
         /// </summary>
         public IReadOnlyCollection<ChannelType> ChannelTypes { get; private set; }
+
 
         internal RestApplicationCommandOption() { }
 
@@ -65,8 +69,14 @@ namespace Discord.Rest
             if (model.Required.IsSpecified)
                 IsRequired = model.Required.Value;
 
+            if (model.MinValue.IsSpecified)
+                MinValue = model.MinValue.Value;
+
+            if (model.MaxValue.IsSpecified)
+                MaxValue = model.MaxValue.Value;
+
             Options = model.Options.IsSpecified
-                ? model.Options.Value.Select(x => Create(x)).ToImmutableArray()
+                ? model.Options.Value.Select(Create).ToImmutableArray()
                 : ImmutableArray.Create<RestApplicationCommandOption>();
 
             Choices = model.Choices.IsSpecified

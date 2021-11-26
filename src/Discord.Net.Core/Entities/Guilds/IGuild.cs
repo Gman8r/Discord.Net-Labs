@@ -207,12 +207,12 @@ namespace Discord
         /// </returns>
         IReadOnlyCollection<ICustomSticker> Stickers { get; }
         /// <summary>
-        ///     Gets a collection of all extra features added to this guild.
+        ///     Gets the features for this guild.
         /// </summary>
         /// <returns>
-        ///     A read-only collection of enabled features in this guild.
+        ///     A flags enum containing all the features for the guild.
         /// </returns>
-        IReadOnlyCollection<string> Features { get; }
+        GuildFeatures Features { get; }
         /// <summary>
         ///     Gets a collection of all roles in this guild.
         /// </summary>
@@ -339,6 +339,13 @@ namespace Discord
         ///     The preferred culture information of this guild.
         /// </returns>
         CultureInfo PreferredCulture { get; }
+        /// <summary>
+        ///     Gets whether the guild has the boost progress bar enabled.
+        /// </summary>
+        /// <returns>
+        ///     <see langword="true"/> if the boost progress bar is enabled; otherwise <see langword="false"/>.
+        /// </returns>
+        bool IsBoostProgressBarEnabled { get; }
 
         /// <summary>
         ///     Modifies this guild.
@@ -538,7 +545,7 @@ namespace Discord
         /// </returns>
         Task<IVoiceChannel> GetVoiceChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
         /// <summary>
-        ///     Gets a stage channel in this guild
+        ///     Gets a stage channel in this guild.
         /// </summary>
         /// <param name="id">The snowflake identifier for the stage channel.</param>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
@@ -771,7 +778,7 @@ namespace Discord
         /// <returns>A guild user associated with the specified <paramref name="userId" />; <see langword="null" /> if the user is already in the guild.</returns>
         Task<IGuildUser> AddGuildUserAsync(ulong userId, string accessToken, Action<AddGuildUserProperties> func = null, RequestOptions options = null);
         /// <summary>
-        /// Disconnects the user from its current voice channel
+        ///     Disconnects the user from its current voice channel.
         /// </summary>
         /// <param name="user">The user to disconnect.</param>
         /// <returns>A task that represents the asynchronous operation for disconnecting a user.</returns>
@@ -990,7 +997,7 @@ namespace Discord
         Task<ICustomSticker> CreateStickerAsync(string name, string description, IEnumerable<string> tags, Image image, RequestOptions options = null);
 
         /// <summary>
-        ///     Creates a new sticker in this guild
+        ///     Creates a new sticker in this guild.
         /// </summary>
         /// <param name="name">The name of the sticker.</param>
         /// <param name="description">The description of the sticker.</param>
@@ -1003,7 +1010,7 @@ namespace Discord
         Task<ICustomSticker> CreateStickerAsync(string name, string description, IEnumerable<string> tags, string path, RequestOptions options = null);
 
         /// <summary>
-        ///     Creates a new sticker in this guild
+        ///     Creates a new sticker in this guild.
         /// </summary>
         /// <param name="name">The name of the sticker.</param>
         /// <param name="description">The description of the sticker.</param>
@@ -1048,6 +1055,58 @@ namespace Discord
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
         Task DeleteStickerAsync(ICustomSticker sticker, RequestOptions options = null);
+
+        /// <summary>
+        ///     Gets a event within this guild.
+        /// </summary>
+        /// <param name="id">The id of the event.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation.
+        /// </returns>
+        Task<IGuildScheduledEvent> GetEventAsync(ulong id, RequestOptions options = null);
+
+        /// <summary>
+        ///     Gets a collection of events within this guild.
+        /// </summary>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation.
+        /// </returns>
+        Task<IReadOnlyCollection<IGuildScheduledEvent>> GetEventsAsync(RequestOptions options = null);
+
+        /// <summary>
+        ///     Creates an event within this guild.
+        /// </summary>
+        /// <param name="name">The name of the event.</param>
+        /// <param name="privacyLevel">The privacy level of the event.</param>
+        /// <param name="startTime">The start time of the event.</param>
+        /// <param name="type">The type of the event.</param>
+        /// <param name="description">The description of the event.</param>
+        /// <param name="endTime">The end time of the event.</param>
+        /// <param name="channelId">
+        ///     The channel id of the event.
+        ///     <remarks>
+        ///     The event must have a type of <see cref="GuildScheduledEventType.Stage"/> or <see cref="GuildScheduledEventType.Voice"/>
+        ///     in order to use this property.
+        ///     </remarks>
+        /// </param>
+        /// <param name="speakers">A collection of speakers for the event.</param>
+        /// <param name="location">The location of the event; links are supported</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous create operation.
+        /// </returns>
+        Task<IGuildScheduledEvent> CreateEventAsync(
+            string name,
+            DateTimeOffset startTime,
+            GuildScheduledEventType type,
+            GuildScheduledEventPrivacyLevel privacyLevel = GuildScheduledEventPrivacyLevel.Private,
+            string description = null,
+            DateTimeOffset? endTime = null,
+            ulong? channelId = null,
+            string location = null,
+            RequestOptions options = null);
 
         /// <summary>
         ///     Gets this guilds application commands.

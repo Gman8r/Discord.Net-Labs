@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Model = Discord.API.ApplicationCommandOption;
 
 namespace Discord.WebSocket
@@ -27,6 +24,12 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public bool? IsRequired { get; private set; }
+
+        /// <inheritdoc/>
+        public double? MinValue { get; private set; }
+
+        /// <inheritdoc/>
+        public double? MaxValue { get; private set; }
 
         /// <summary>
         ///     Choices for string and int types for the user to pick from.
@@ -57,25 +60,25 @@ namespace Discord.WebSocket
             Type = model.Type;
             Description = model.Description;
 
-            IsDefault = model.Default.IsSpecified
-                ? model.Default.Value
-                : null;
+            IsDefault = model.Default.ToNullable();
 
-            IsRequired = model.Required.IsSpecified
-                ? model.Required.Value
-                : null;
+            IsRequired = model.Required.ToNullable();
+
+            MinValue = model.MinValue.ToNullable();
+
+            MaxValue = model.MaxValue.ToNullable();
 
             Choices = model.Choices.IsSpecified
-                ? model.Choices.Value.Select(x => SocketApplicationCommandChoice.Create(x)).ToImmutableArray()
-                : new ImmutableArray<SocketApplicationCommandChoice>();
+                ? model.Choices.Value.Select(SocketApplicationCommandChoice.Create).ToImmutableArray()
+                : ImmutableArray.Create<SocketApplicationCommandChoice>();
 
             Options = model.Options.IsSpecified
-                ? model.Options.Value.Select(x => SocketApplicationCommandOption.Create(x)).ToImmutableArray()
-                : new ImmutableArray<SocketApplicationCommandOption>();
+                ? model.Options.Value.Select(Create).ToImmutableArray()
+                : ImmutableArray.Create<SocketApplicationCommandOption>();
 
             ChannelTypes = model.ChannelTypes.IsSpecified
                 ? model.ChannelTypes.Value.ToImmutableArray()
-                : new ImmutableArray<ChannelType>();
+                : ImmutableArray.Create<ChannelType>();
         }
 
         IReadOnlyCollection<IApplicationCommandOptionChoice> IApplicationCommandOption.Choices => Choices;

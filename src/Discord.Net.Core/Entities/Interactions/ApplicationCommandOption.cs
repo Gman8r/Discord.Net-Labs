@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Discord
 {
@@ -24,13 +21,13 @@ namespace Discord
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException($"{nameof(Name)} cannot be null!");
+                    throw new ArgumentNullException(nameof(value), $"{nameof(Name)} cannot be null.");
 
                 if (value.Length > 32)
-                    throw new ArgumentException($"{nameof(Name)} length must be less than or equal to 32");
+                    throw new ArgumentOutOfRangeException(nameof(value), "Name length must be less than or equal to 32.");
 
                 if (!Regex.IsMatch(value, @"^[\w-]{1,32}$"))
-                    throw new ArgumentException($"{nameof(Name)} must match the regex ^[\\w-]{{1,32}}$");
+                    throw new FormatException($"{nameof(value)} must match the regex ^[\\w-]{{1,32}}$");
 
                 _name = value;
             }
@@ -42,14 +39,12 @@ namespace Discord
         public string Description
         {
             get => _description;
-            set
+            set => _description = value?.Length switch
             {
-                if (value?.Length > 100)
-                    throw new ArgumentException("Description length must be less than or equal to 100");
-                if (value?.Length < 1)
-                    throw new ArgumentException("Description length must at least 1 character in length");
-                _description = value;
-            }
+                > 100 => throw new ArgumentOutOfRangeException(nameof(value), "Description length must be less than or equal to 100."),
+                0 => throw new ArgumentOutOfRangeException(nameof(value), "Description length must be at least 1."),
+                _ => value
+            };
         }
 
         /// <summary>
@@ -60,17 +55,28 @@ namespace Discord
         /// <summary>
         ///     Gets or sets whether or not this options is the first required option for the user to complete. only one option can be default.
         /// </summary>
-        public bool? Default { get; set; }
+        public bool? IsDefault { get; set; }
 
         /// <summary>
         ///     Gets or sets if the option is required.
         /// </summary>
-        public bool? Required { get; set; }
+        public bool? IsRequired { get; set; }
 
         /// <summary>
         ///     Gets or sets whether or not this option supports autocomplete.
         /// </summary>
-        public bool Autocomplete { get; set; }
+        public bool IsAutocomplete { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the smallest number value the user can input.
+        /// </summary>
+        public double? MinValue { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the largest number value the user can input.
+        /// </summary>
+        public double? MaxValue { get; set; }
+
         /// <summary>
         ///     Gets or sets the choices for string and int types for the user to pick from.
         /// </summary>
