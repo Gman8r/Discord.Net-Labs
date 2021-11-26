@@ -40,6 +40,11 @@ namespace Discord.Commands
             ? (Values.Count == 1 ? Values.Single().Value : Values.OrderByDescending(v => v.Score).First().Value)
             : throw new InvalidOperationException("TypeReaderResult was not successful.");
 
+        /// <exception cref="InvalidOperationException">TypeReaderResult was not successful.</exception>
+        public float BestMatchScore => IsSuccess
+            ? Values.Max(a => a.Score)
+            : throw new InvalidOperationException("TypeReaderResult was not successful.");
+
         private TypeReaderResult(IReadOnlyCollection<TypeReaderValue> values, CommandError? error, string errorReason)
         {
             Values = values;
