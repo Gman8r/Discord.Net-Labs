@@ -4563,10 +4563,8 @@
         <member name="P:Discord.Rest.RestUserMessage.MentionedEveryone">
             <inheritdoc />
         </member>
-        <member name="P:Discord.Rest.RestUserMessage.Attachments">
-            <inheritdoc />
-        </member>
         <member name="P:Discord.Rest.RestUserMessage.Embeds">
+            <inheritdoc />
             <inheritdoc />
         </member>
         <member name="P:Discord.Rest.RestUserMessage.MentionedChannelIds">

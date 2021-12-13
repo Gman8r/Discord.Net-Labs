@@ -4580,14 +4580,6 @@
         <member name="P:Discord.WebSocket.SocketMessage.Type">
             <inheritdoc/>
         </member>
-        <member name="P:Discord.WebSocket.SocketMessage.Attachments">
-            <summary>
-                Returns all attachments included in this message.
-            </summary>
-            <returns>
-                Collection of attachments.
-            </returns>
-        </member>
         <member name="P:Discord.WebSocket.SocketMessage.Embeds">
             <summary>
                 Returns all embeds included in this message.
@@ -4627,6 +4619,14 @@
             </summary>
             <returns>
                 Collection of WebSocket-based users.
+            </returns>
+        </member>
+        <member name="P:Discord.WebSocket.SocketMessage.Attachments">
+            <summary>
+                Returns the attachments included in this message.
+            </summary>
+            <returns>
+                Collection of attachments.
             </returns>
         </member>
         <member name="P:Discord.WebSocket.SocketMessage.Timestamp">
@@ -4784,9 +4784,6 @@
             <inheritdoc />
         </member>
         <member name="P:Discord.WebSocket.SocketUserMessage.MentionedEveryone">
-            <inheritdoc />
-        </member>
-        <member name="P:Discord.WebSocket.SocketUserMessage.Attachments">
             <inheritdoc />
         </member>
         <member name="P:Discord.WebSocket.SocketUserMessage.Embeds">
