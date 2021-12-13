@@ -19,7 +19,6 @@ namespace Discord.WebSocket
         private bool _isMentioningEveryone, _isTTS, _isPinned;
         private long? _editedTimestampTicks;
         private IUserMessage _referencedMessage;
-        private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
         private ImmutableArray<ITag> _tags = ImmutableArray.Create<ITag>();
         private ImmutableArray<SocketRole> _roleMentions = ImmutableArray.Create<SocketRole>();
         private ImmutableArray<SocketSticker> _stickers = ImmutableArray.Create<SocketSticker>();
@@ -34,8 +33,6 @@ namespace Discord.WebSocket
         public override DateTimeOffset? EditedTimestamp => DateTimeUtils.FromTicks(_editedTimestampTicks);
         /// <inheritdoc />
         public override bool MentionedEveryone => _isMentioningEveryone;
-        /// <inheritdoc />
-        public override IReadOnlyCollection<Embed> Embeds => _embeds;
         /// <inheritdoc />
         public override IReadOnlyCollection<ITag> Tags => _tags;
         /// <inheritdoc />
@@ -74,20 +71,6 @@ namespace Discord.WebSocket
                 _isMentioningEveryone = model.MentionEveryone.Value;
             if (model.RoleMentions.IsSpecified)
                 _roleMentions = model.RoleMentions.Value.Select(x => guild.GetRole(x)).ToImmutableArray();
-
-            if (model.Embeds.IsSpecified)
-            {
-                var value = model.Embeds.Value;
-                if (value.Length > 0)
-                {
-                    var embeds = ImmutableArray.CreateBuilder<Embed>(value.Length);
-                    for (int i = 0; i < value.Length; i++)
-                        embeds.Add(value[i].ToEntity());
-                    _embeds = embeds.ToImmutable();
-                }
-                else
-                    _embeds = ImmutableArray.Create<Embed>();
-            }
 
             if (model.Content.IsSpecified)
             {

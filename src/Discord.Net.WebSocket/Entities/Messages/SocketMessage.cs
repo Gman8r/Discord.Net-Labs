@@ -19,6 +19,7 @@ namespace Discord.WebSocket
         private readonly List<SocketReaction> _reactions = new List<SocketReaction>();
         private ImmutableArray<SocketUser> _userMentions = ImmutableArray.Create<SocketUser>();
         private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
+        private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
 
         /// <summary>
         ///     Gets the author of this message.
@@ -92,7 +93,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Collection of embed objects.
         /// </returns>
-        public virtual IReadOnlyCollection<Embed> Embeds => ImmutableArray.Create<Embed>();
+        public virtual IReadOnlyCollection<Embed> Embeds => _embeds;
         /// <summary>
         ///     Returns the channels mentioned in this message.
         /// </summary>
@@ -198,6 +199,20 @@ namespace Discord.WebSocket
                 }
                 else
                     _attachments = ImmutableArray.Create<Attachment>();
+            }
+
+            if (model.Embeds.IsSpecified)
+            {
+                var value = model.Embeds.Value;
+                if (value.Length > 0)
+                {
+                    var embeds = ImmutableArray.CreateBuilder<Embed>(value.Length);
+                    for (int i = 0; i < value.Length; i++)
+                        embeds.Add(value[i].ToEntity());
+                    _embeds = embeds.ToImmutable();
+                }
+                else
+                    _embeds = ImmutableArray.Create<Embed>();
             }
 
             if (model.Components.IsSpecified)

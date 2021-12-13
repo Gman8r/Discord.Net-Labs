@@ -17,7 +17,6 @@ namespace Discord.Rest
         private bool _isMentioningEveryone, _isTTS, _isPinned;
         private long? _editedTimestampTicks;
         private IUserMessage _referencedMessage;
-        private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
         private ImmutableArray<ITag> _tags = ImmutableArray.Create<ITag>();
         private ImmutableArray<ulong> _roleMentionIds = ImmutableArray.Create<ulong>();
         private ImmutableArray<StickerItem> _stickers = ImmutableArray.Create<StickerItem>();
@@ -32,9 +31,6 @@ namespace Discord.Rest
         public override DateTimeOffset? EditedTimestamp => DateTimeUtils.FromTicks(_editedTimestampTicks);
         /// <inheritdoc />
         public override bool MentionedEveryone => _isMentioningEveryone;
-        /// <inheritdoc />
-        /// <inheritdoc />
-        public override IReadOnlyCollection<Embed> Embeds => _embeds;
         /// <inheritdoc />
         public override IReadOnlyCollection<ulong> MentionedChannelIds => MessageHelper.FilterTagsByKey(TagType.ChannelMention, _tags);
         /// <inheritdoc />
@@ -71,20 +67,6 @@ namespace Discord.Rest
                 _isMentioningEveryone = model.MentionEveryone.Value;
             if (model.RoleMentions.IsSpecified)
                 _roleMentionIds = model.RoleMentions.Value.ToImmutableArray();
-
-            if (model.Embeds.IsSpecified)
-            {
-                var value = model.Embeds.Value;
-                if (value.Length > 0)
-                {
-                    var embeds = ImmutableArray.CreateBuilder<Embed>(value.Length);
-                    for (int i = 0; i < value.Length; i++)
-                        embeds.Add(value[i].ToEntity());
-                    _embeds = embeds.ToImmutable();
-                }
-                else
-                    _embeds = ImmutableArray.Create<Embed>();
-            }
 
             var guildId = (Channel as IGuildChannel)?.GuildId;
             var guild = guildId != null ? (Discord as IDiscordClient).GetGuildAsync(guildId.Value, CacheMode.CacheOnly).Result : null;
