@@ -36,5 +36,8 @@ namespace Discord.Rest
             var cmd = await InteractionHelper.ModifyGlobalCommandAsync(Discord, this, func, options).ConfigureAwait(false);
             Update(cmd);
         }
+
+        public Task<GuildApplicationCommandPermission> ModifyCommandPermissionsInGuild(ulong guildId, ApplicationCommandPermission[] permissions, RequestOptions options = null)
+            => InteractionHelper.ModifyGuildCommandPermissionsAsync(Discord, guildId, Id, permissions, options);
     }
 }
