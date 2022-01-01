@@ -1,3 +1,4 @@
+using Discord.API.Gateway;
 using Discord.Audio;
 using Discord.Rest;
 using System;
@@ -45,6 +46,7 @@ namespace Discord.WebSocket
         private ImmutableArray<GuildEmote> _emotes;
 
         private AudioClient _audioClient;
+        private VoiceStateUpdateParams _voiceStateUpdateParams;
 #pragma warning restore IDISP002, IDISP006
 
         /// <inheritdoc />
@@ -185,26 +187,23 @@ namespace Discord.WebSocket
                 return id.HasValue ? GetVoiceChannel(id.Value) : null;
             }
         }
-        /// <summary>
-        ///     Gets the max bitrate for voice channels in this guild.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="int"/> representing the maximum bitrate value allowed by Discord in this guild.
-        /// </returns>
+        /// <inheritdoc/>
         public int MaxBitrate
         {
             get
             {
-                var maxBitrate = PremiumTier switch
+                return PremiumTier switch
                 {
                     PremiumTier.Tier1 => 128000,
                     PremiumTier.Tier2 => 256000,
                     PremiumTier.Tier3 => 384000,
                     _ => 96000,
                 };
-                return maxBitrate;
             }
         }
+        /// <inheritdoc/>
+        public ulong MaxUploadLimit
+            => GuildHelper.GetUploadLimit(this);
         /// <summary>
         ///     Gets the widget channel (i.e. the channel set in the guild's widget settings) in this guild.
         /// </summary>
@@ -1150,22 +1149,29 @@ namespace Discord.WebSocket
             }
             return null;
         }
-        internal void PurgeGuildUserCache()
+
+        /// <summary>
+        ///     Purges this guild's user cache.
+        /// </summary>
+        public void PurgeUserCache() => PurgeUserCache(_ => true);
+        /// <summary>
+        ///     Purges this guild's user cache.
+        /// </summary>
+        /// <param name="predicate">The predicate used to select which users to clear.</param>
+        public void PurgeUserCache(Func<SocketGuildUser, bool> predicate)
         {
-            var members = Users;
-            var self = CurrentUser;
-            _members.Clear();
-            if (self != null)
-                _members.TryAdd(self.Id, self);
+            var membersToPurge = Users.Where(x => predicate.Invoke(x) && x?.Id != Discord.CurrentUser.Id);
+            var membersToKeep = Users.Where(x => !predicate.Invoke(x) || x?.Id == Discord.CurrentUser.Id);
+
+            foreach (var member in membersToPurge)
+                if(_members.TryRemove(member.Id, out _))
+                    member.GlobalUser.RemoveRef(Discord);
+
+            foreach (var member in membersToKeep)
+                _members.TryAdd(member.Id, member);
 
             _downloaderPromise = new TaskCompletionSource<bool>();
             DownloadedMemberCount = _members.Count;
-
-            foreach (var member in members)
-            {
-                if (member.Id != self?.Id)
-                    member.GlobalUser.RemoveRef(Discord);
-            }
         }
 
         /// <summary>
@@ -1592,11 +1598,19 @@ namespace Discord.WebSocket
                 promise = new TaskCompletionSource<AudioClient>();
                 _audioConnectPromise = promise;
 
+                _voiceStateUpdateParams = new VoiceStateUpdateParams
+                {
+                    GuildId = Id,
+                    ChannelId = channelId,
+                    SelfDeaf = selfDeaf,
+                    SelfMute = selfMute
+                };
+
                 if (external)
                 {
 #pragma warning disable IDISP001
                     var _ = promise.TrySetResultAsync(null);
-                    await Discord.ApiClient.SendVoiceStateUpdateAsync(Id, channelId, selfDeaf, selfMute).ConfigureAwait(false);
+                    await Discord.ApiClient.SendVoiceStateUpdateAsync(_voiceStateUpdateParams).ConfigureAwait(false);
                     return null;
 #pragma warning restore IDISP001
                 }
@@ -1631,7 +1645,7 @@ namespace Discord.WebSocket
 #pragma warning restore IDISP003
                 }
 
-                await Discord.ApiClient.SendVoiceStateUpdateAsync(Id, channelId, selfDeaf, selfMute).ConfigureAwait(false);
+                await Discord.ApiClient.SendVoiceStateUpdateAsync(_voiceStateUpdateParams).ConfigureAwait(false);
             }
             catch
             {
@@ -1678,7 +1692,38 @@ namespace Discord.WebSocket
             await Discord.ApiClient.SendVoiceStateUpdateAsync(Id, null, false, false).ConfigureAwait(false);
             _audioClient?.Dispose();
             _audioClient = null;
+            _voiceStateUpdateParams = null;
         }
+
+        internal async Task ModifyAudioAsync(ulong channelId, Action<AudioChannelProperties> func, RequestOptions options)
+        {
+            await _audioLock.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                await ModifyAudioInternalAsync(channelId, func, options).ConfigureAwait(false);
+            }
+            finally
+            {
+                _audioLock.Release();
+            }
+        }
+
+        private async Task ModifyAudioInternalAsync(ulong channelId, Action<AudioChannelProperties> func, RequestOptions options)
+        {
+            if (_voiceStateUpdateParams == null || _voiceStateUpdateParams.ChannelId != channelId)
+                throw new InvalidOperationException("Cannot modify properties of not connected audio channel");
+
+            var props = new AudioChannelProperties();
+            func(props);
+
+            if (props.SelfDeaf.IsSpecified)
+                _voiceStateUpdateParams.SelfDeaf = props.SelfDeaf.Value;
+            if (props.SelfMute.IsSpecified)
+                _voiceStateUpdateParams.SelfMute = props.SelfMute.Value;
+
+            await Discord.ApiClient.SendVoiceStateUpdateAsync(_voiceStateUpdateParams, options).ConfigureAwait(false);
+        }
+
         internal async Task FinishConnectAudio(string url, string token)
         {
             //TODO: Mem Leak: Disconnected/Connected handlers aren't cleaned up

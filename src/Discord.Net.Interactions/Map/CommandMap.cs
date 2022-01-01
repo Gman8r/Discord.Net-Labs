@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Discord.Interactions
 {
@@ -34,32 +35,37 @@ namespace Discord.Interactions
             _root.AddCommand(key, 0, command);
         }
 
-        public void AddCommand(string[] input, T command)
+        public void AddCommand(IList<string> input, T command)
         {
             _root.AddCommand(input, 0, command);
         }
 
         public void RemoveCommand(T command)
         {
-            string[] key = ParseCommandName(command);
+            var key = ParseCommandName(command);
 
             _root.RemoveCommand(key, 0);
         }
 
-        public SearchResult<T> GetCommand(string input) =>
-            GetCommand(input.Split(_seperators));
+        public SearchResult<T> GetCommand(string input)
+        {
+            if(_seperators.Any())
+                return GetCommand(input.Split(_seperators));
+            else
+                return GetCommand(new string[] { input });
+        }
 
-        public SearchResult<T> GetCommand(string[] input) =>
+        public SearchResult<T> GetCommand(IList<string> input) =>
             _root.GetCommand(input, 0);
 
         private void AddCommand(T command)
         {
-            string[] key = ParseCommandName(command);
+            var key = ParseCommandName(command);
 
             _root.AddCommand(key, 0, command);
         }
 
-        private string[] ParseCommandName(T command)
+        private IList<string> ParseCommandName(T command)
         {
             var keywords = new List<string>() { command.Name };
 
@@ -75,7 +81,7 @@ namespace Discord.Interactions
 
             keywords.Reverse();
 
-            return keywords.ToArray();
+            return keywords;
         }
     }
 }

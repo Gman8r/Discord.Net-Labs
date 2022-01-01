@@ -55,7 +55,7 @@ namespace Discord.Commands.Builders
             if (type.GetTypeInfo().IsValueType)
                 DefaultValue = Activator.CreateInstance(type);
             else if (type.IsArray)
-                type = ParameterType.GetElementType();
+                DefaultValue = Array.CreateInstance(type.GetElementType(), 0);
             ParameterType = type;
         }
 

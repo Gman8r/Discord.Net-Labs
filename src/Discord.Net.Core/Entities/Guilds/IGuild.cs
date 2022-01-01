@@ -313,6 +313,13 @@ namespace Discord
         ///     The approximate number of non-offline members in this guild.
         /// </returns>
         int? ApproximatePresenceCount { get; }
+        /// <summary>
+        ///     Gets the max bitrate for voice channels in this guild.
+        /// </summary>
+        /// <returns>
+        ///     A <see cref="int"/> representing the maximum bitrate value allowed by Discord in this guild.
+        /// </returns>
+        int MaxBitrate { get; }
 
         /// <summary>
         ///     Gets the preferred locale of this guild in IETF BCP 47
@@ -346,6 +353,11 @@ namespace Discord
         ///     <see langword="true"/> if the boost progress bar is enabled; otherwise <see langword="false"/>.
         /// </returns>
         bool IsBoostProgressBarEnabled { get; }
+
+        /// <summary>
+        ///     Gets the upload limit in bytes for this guild. This number is dependent on the guild's boost status.
+        /// </summary>
+        ulong MaxUploadLimit { get; }
 
         /// <summary>
         ///     Modifies this guild.

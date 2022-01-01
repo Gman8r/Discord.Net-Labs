@@ -21,6 +21,9 @@ namespace Discord.WebSocket
         public int Bitrate { get; private set; }
         /// <inheritdoc />
         public int? UserLimit { get; private set; }
+        /// <inheritdoc/>
+        public string RTCRegion { get; private set; }
+
         /// <inheritdoc />
         public ulong? CategoryId { get; private set; }
         /// <summary>
@@ -31,8 +34,10 @@ namespace Discord.WebSocket
         /// </returns>
         public ICategoryChannel Category
             => CategoryId.HasValue ? Guild.GetChannel(CategoryId.Value) as ICategoryChannel : null;
+
         /// <inheritdoc />
         public string Mention => MentionUtils.MentionChannel(Id);
+
         /// <inheritdoc />
         public Task SyncPermissionsAsync(RequestOptions options = null)
             => ChannelHelper.SyncPermissionsAsync(this, Discord, options);
@@ -63,6 +68,7 @@ namespace Discord.WebSocket
             CategoryId = model.CategoryId;
             Bitrate = model.Bitrate.Value;
             UserLimit = model.UserLimit.Value != 0 ? model.UserLimit.Value : (int?)null;
+            RTCRegion = model.RTCRegion.GetValueOrDefault(null);
         }
 
         /// <inheritdoc />
@@ -78,6 +84,12 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public async Task DisconnectAsync()
             => await Guild.DisconnectAudioAsync();
+
+        /// <inheritdoc />
+        public async Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions options = null)
+        {
+            await Guild.ModifyAudioAsync(Id, func, options).ConfigureAwait(false);
+        }
 
         /// <inheritdoc />
         public override SocketGuildUser GetUser(ulong id)
@@ -96,6 +108,9 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public async Task<IInviteMetadata> CreateInviteToApplicationAsync(ulong applicationId, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
             => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, applicationId, options).ConfigureAwait(false);
+        /// <inheritdoc />
+        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(DefaultApplications application, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+            => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, (ulong)application, options);
         /// <inheritdoc />
         public async Task<IInviteMetadata> CreateInviteToStreamAsync(IUser user, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
             => await ChannelHelper.CreateInviteToStreamAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, user, options).ConfigureAwait(false);

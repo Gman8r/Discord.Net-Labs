@@ -1,14 +1,34 @@
+using System.Threading.Tasks;
+
 namespace Discord.Interactions
 {
-    internal interface IInteractionModuleBase
+    /// <summary>
+    ///     Represents a generic interaction module base.
+    /// </summary>
+    public interface IInteractionModuleBase
     {
+        /// <summary>
+        ///     Sets the context of this module.
+        /// </summary>
+        /// <param name="context"></param>
         void SetContext (IInteractionContext context);
 
+        /// <summary>
+        ///     Method body to be executed asynchronously before executing an application command.
+        /// </summary>
+        /// <param name="command">Command information related to the Discord Application Command.</param>
+        Task BeforeExecuteAsync(ICommandInfo command);
         /// <summary>
         ///     Method body to be executed before executing an application command.
         /// </summary>
         /// <param name="command">Command information related to the Discord Application Command.</param>
         void BeforeExecute (ICommandInfo command);
+
+        /// <summary>
+        ///     Method body to be executed asynchronously after an application command execution.
+        /// </summary>
+        /// <param name="command">Command information related to the Discord Application Command.</param>
+        Task AfterExecuteAsync(ICommandInfo command);
 
         /// <summary>
         ///     Method body to be executed after an application command execution.

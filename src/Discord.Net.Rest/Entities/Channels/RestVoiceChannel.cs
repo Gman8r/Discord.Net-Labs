@@ -21,8 +21,12 @@ namespace Discord.Rest
         public int? UserLimit { get; private set; }
         /// <inheritdoc />
         public ulong? CategoryId { get; private set; }
+        /// <inheritdoc/>
+        public string RTCRegion { get; private set; }
+
         /// <inheritdoc />
         public string Mention => MentionUtils.MentionChannel(Id);
+
         internal RestVoiceChannel(BaseDiscordClient discord, IGuild guild, ulong id)
             : base(discord, guild, id)
         {
@@ -44,6 +48,8 @@ namespace Discord.Rest
 
             if(model.UserLimit.IsSpecified)
                 UserLimit = model.UserLimit.Value != 0 ? model.UserLimit.Value : (int?)null;
+
+            RTCRegion = model.RTCRegion.GetValueOrDefault(null);
         }
 
         /// <inheritdoc />
@@ -76,6 +82,9 @@ namespace Discord.Rest
         public async Task<IInviteMetadata> CreateInviteToApplicationAsync(ulong applicationId, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
             => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, applicationId, options).ConfigureAwait(false);
         /// <inheritdoc />
+        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(DefaultApplications application, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+            => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, (ulong)application, options);
+        /// <inheritdoc />
         public async Task<IInviteMetadata> CreateInviteToStreamAsync(IUser user, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
             => await ChannelHelper.CreateInviteToStreamAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, user, options).ConfigureAwait(false);
         /// <inheritdoc />
@@ -90,6 +99,7 @@ namespace Discord.Rest
         /// <exception cref="NotSupportedException">Connecting to a REST-based channel is not supported.</exception>
         Task<IAudioClient> IAudioChannel.ConnectAsync(bool selfDeaf, bool selfMute, bool external) { throw new NotSupportedException(); }
         Task IAudioChannel.DisconnectAsync() { throw new NotSupportedException(); }
+        Task IAudioChannel.ModifyAsync(Action<AudioChannelProperties> func, RequestOptions options) { throw new NotSupportedException(); }
         #endregion
 
         #region IGuildChannel

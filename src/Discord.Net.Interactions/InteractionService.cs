@@ -67,7 +67,7 @@ namespace Discord.Interactions
         internal readonly LogManager _logManager;
         internal readonly Func<DiscordRestClient> _getRestClient;
 
-        internal readonly bool _throwOnError, _deleteUnkownSlashCommandAck, _useCompiledLambda, _enableAutocompleteHandlers;
+        internal readonly bool _throwOnError, _useCompiledLambda, _enableAutocompleteHandlers, _autoServiceScopes;
         internal readonly string _wildCardExp;
         internal readonly RunMode _runMode;
         internal readonly RestResponseCallback _restResponseCallback;
@@ -153,10 +153,10 @@ namespace Discord.Interactions
                 throw new InvalidOperationException($"RunMode cannot be set to {RunMode.Default}");
 
             _throwOnError = config.ThrowOnError;
-            _deleteUnkownSlashCommandAck = config.DeleteUnknownSlashCommandAck;
             _wildCardExp = config.WildCardExpression;
             _useCompiledLambda = config.UseCompiledLambda;
             _enableAutocompleteHandlers = config.EnableAutocompleteHandlers;
+            _autoServiceScopes = config.AutoServiceScopes;
             _restResponseCallback = config.RestResponseCallback;
 
             _genericTypeConverters = new ConcurrentDictionary<Type, Type>
@@ -166,7 +166,8 @@ namespace Discord.Interactions
                 [typeof(IUser)] = typeof(DefaultUserConverter<>),
                 [typeof(IMentionable)] = typeof(DefaultMentionableConverter<>),
                 [typeof(IConvertible)] = typeof(DefaultValueConverter<>),
-                [typeof(Enum)] = typeof(EnumConverter<>)
+                [typeof(Enum)] = typeof(EnumConverter<>),
+                [typeof(Nullable<>)] = typeof(NullableConverter<>),
             };
 
             _typeConverters = new ConcurrentDictionary<Type, TypeConverter>
@@ -358,21 +359,19 @@ namespace Discord.Interactions
         /// </summary>
         /// <remarks>
         ///     Commands will be registered as standalone commands, if you want the <see cref="GroupAttribute"/> to take effect,
-        ///     use <see cref="AddModulesToGuildAsync(IGuild, ModuleInfo[])"/>.
+        ///     use <see cref="AddModulesToGuildAsync(IGuild, ModuleInfo[])"/>. Registering a commands without group names might cause the command traversal to fail.
         /// </remarks>
         /// <param name="guild">The target guild.</param>
         /// <param name="commands">Commands to be registered to Discord.</param>
         /// <returns>
         ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
         /// </returns>
-        public async Task<IReadOnlyCollection<RestGuildCommand>> AddCommandsToGuildAsync (IGuild guild, params IApplicationCommandInfo[] commands)
+        public async Task<IReadOnlyCollection<RestGuildCommand>> AddCommandsToGuildAsync(IGuild guild, bool deleteMissing = false, params ICommandInfo[] commands)
         {
             EnsureClientReady();
 
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
-
-            var existing = await RestClient.GetGuildApplicationCommands(guild.Id).ConfigureAwait(false);
 
             var props = new List<ApplicationCommandProperties>();
 
@@ -391,9 +390,10 @@ namespace Discord.Interactions
                 }
             }
 
-            if (existing != null)
+            if (!deleteMissing)
             {
-                var missing = existing.Where(oldCommand => !props.Any(newCommand => newCommand.Name.IsSpecified && newCommand.Name.Value == oldCommand.Name));
+                var existing = await RestClient.GetGuildApplicationCommands(guild.Id).ConfigureAwait(false);
+                var missing = existing.Where(x => !props.Any(y => y.Name.IsSpecified && y.Name.Value == x.Name));
                 props.AddRange(missing.Select(x => x.ToApplicationCommandProps()));
             }
 
@@ -408,20 +408,88 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
         /// </returns>
-        public async Task<IReadOnlyCollection<RestGuildCommand>> AddModulesToGuildAsync (IGuild guild, params ModuleInfo[] modules)
+        public async Task<IReadOnlyCollection<RestGuildCommand>> AddModulesToGuildAsync(IGuild guild, bool deleteMissing = false, params ModuleInfo[] modules)
         {
             EnsureClientReady();
 
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            var existing = await RestClient.GetGuildApplicationCommands(guild.Id).ConfigureAwait(false);
             var props = modules.SelectMany(x => x.ToApplicationCommandProps(true)).ToList();
 
-            foreach (var command in existing)
-                props.Add(command.ToApplicationCommandProps());
+            if (!deleteMissing)
+            {
+                var existing = await RestClient.GetGuildApplicationCommands(guild.Id).ConfigureAwait(false);
+                var missing = existing.Where(x => !props.Any(y => y.Name.IsSpecified && y.Name.Value == x.Name));
+                props.AddRange(missing.Select(x => x.ToApplicationCommandProps()));
+            }
 
             return await RestClient.BulkOverwriteGuildCommands(props.ToArray(), guild.Id).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        ///     Register Application Commands from modules provided in <paramref name="modules"/> as global commands. 
+        /// </summary>
+        /// <param name="modules">Modules to be registered to Discord.</param>
+        /// <returns>
+        ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
+        /// </returns>
+        public async Task<IReadOnlyCollection<RestGlobalCommand>> AddModulesGloballyAsync(bool deleteMissing = false, params ModuleInfo[] modules)
+        {
+            EnsureClientReady();
+
+            var props = modules.SelectMany(x => x.ToApplicationCommandProps(true)).ToList();
+
+            if (!deleteMissing)
+            {
+                var existing = await RestClient.GetGlobalApplicationCommands().ConfigureAwait(false);
+                var missing = existing.Where(x => !props.Any(y => y.Name.IsSpecified && y.Name.Value == x.Name));
+                props.AddRange(missing.Select(x => x.ToApplicationCommandProps()));
+            }
+
+            return await RestClient.BulkOverwriteGlobalCommands(props.ToArray()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        ///     Register Application Commands from <paramref name="commands"/> as global commands.
+        /// </summary>
+        /// <remarks>
+        ///     Commands will be registered as standalone commands, if you want the <see cref="GroupAttribute"/> to take effect,
+        ///     use <see cref="AddModulesToGuildAsync(IGuild, ModuleInfo[])"/>. Registering a commands without group names might cause the command traversal to fail.
+        /// </remarks>
+        /// <param name="commands">Commands to be registered to Discord.</param>
+        /// <returns>
+        ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
+        /// </returns>
+        public async Task<IReadOnlyCollection<RestGlobalCommand>> AddCommandsGloballyAsync(bool deleteMissing = false, params IApplicationCommandInfo[] commands)
+        {
+            EnsureClientReady();
+
+            var props = new List<ApplicationCommandProperties>();
+
+            foreach (var command in commands)
+            {
+                switch (command)
+                {
+                    case SlashCommandInfo slashCommand:
+                        props.Add(slashCommand.ToApplicationCommandProps());
+                        break;
+                    case ContextCommandInfo contextCommand:
+                        props.Add(contextCommand.ToApplicationCommandProps());
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Command type {command.GetType().FullName} isn't supported yet");
+                }
+            }
+
+            if (!deleteMissing)
+            {
+                var existing = await RestClient.GetGlobalApplicationCommands().ConfigureAwait(false);
+                var missing = existing.Where(x => !props.Any(y => y.Name.IsSpecified && y.Name.Value == x.Name));
+                props.AddRange(missing.Select(x => x.ToApplicationCommandProps()));
+            }
+
+            return await RestClient.BulkOverwriteGlobalCommands(props.ToArray()).ConfigureAwait(false);
         }
 
         private void LoadModuleInternal (ModuleInfo module)
@@ -438,7 +506,7 @@ namespace Discord.Interactions
                 _componentCommandMap.AddCommand(interaction, interaction.IgnoreGroupNames);
 
             foreach (var command in module.AutocompleteCommands)
-                _autocompleteCommandMap.AddCommand(command, command.IgnoreGroupNames);
+                _autocompleteCommandMap.AddCommand(command.GetCommandKeywords(), command);
 
             foreach (var subModule in module.SubModules)
                 LoadModuleInternal(subModule);
@@ -553,12 +621,6 @@ namespace Discord.Interactions
             {
                 await _cmdLogger.DebugAsync($"Unknown slash command, skipping execution ({string.Join(" ", keywords).ToUpper()})");
 
-                if (_deleteUnkownSlashCommandAck)
-                {
-                    var response = await context.Interaction.GetOriginalResponseAsync().ConfigureAwait(false);
-                    await response.DeleteAsync().ConfigureAwait(false);
-                }
-
                 await _slashCommandExecutedEvent.InvokeAsync(null, context, result).ConfigureAwait(false);
                 return result;
             }
@@ -606,12 +668,12 @@ namespace Discord.Interactions
 
                 if(autocompleteHandlerResult.IsSuccess)
                 {
-                    var parameter = autocompleteHandlerResult.Command.Parameters.FirstOrDefault(x => string.Equals(x.Name, interaction.Data.Current.Name, StringComparison.Ordinal));
-
-                    if(parameter is not null)
+                    if (autocompleteHandlerResult.Command._flattenedParameterDictionary.TryGetValue(interaction.Data.Current.Name, out var parameter) && parameter?.AutocompleteHandler is not null)
                         return await parameter.AutocompleteHandler.ExecuteAsync(context, interaction, parameter, services).ConfigureAwait(false);
                 }
             }
+
+            keywords.Add(interaction.Data.Current.Name);
 
             var commandResult = _autocompleteCommandMap.GetCommand(keywords);
 
@@ -631,10 +693,8 @@ namespace Discord.Interactions
             if (_typeConverters.TryGetValue(type, out var specific))
                 return specific;
 
-            else if (_typeConverters.Any(x => x.Value.CanConvertTo(type)))
-                return _typeConverters.First(x => x.Value.CanConvertTo(type)).Value;
-
-            else if (_genericTypeConverters.Any(x => x.Key.IsAssignableFrom(type)))
+            else if (_genericTypeConverters.Any(x => x.Key.IsAssignableFrom(type)
+            || (x.Key.IsGenericTypeDefinition && type.IsGenericType && x.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition())))
             {
                 services ??= EmptyServiceProvider.Instance;
 
@@ -643,6 +703,9 @@ namespace Discord.Interactions
                 _typeConverters[type] = converter;
                 return converter;
             }
+
+            else if (_typeConverters.Any(x => x.Value.CanConvertTo(type)))
+                return _typeConverters.First(x => x.Value.CanConvertTo(type)).Value;
 
             throw new ArgumentException($"No type {nameof(TypeConverter)} is defined for this {type.FullName}", "type");
         }
@@ -861,16 +924,17 @@ namespace Discord.Interactions
 
         private Type GetMostSpecificTypeConverter (Type type)
         {
-            var scorePairs = new Dictionary<Type, int>();
-            var validConverters = _genericTypeConverters.Where(x => x.Key.IsAssignableFrom(type));
+            if (_genericTypeConverters.TryGetValue(type, out var matching))
+                return matching;
 
-            foreach (var typeConverterPair in validConverters)
-            {
-                var score = validConverters.Count(x => typeConverterPair.Key.IsAssignableFrom(x.Key));
-                scorePairs.Add(typeConverterPair.Value, score);
-            }
+            if (type.IsGenericType && _genericTypeConverters.TryGetValue(type.GetGenericTypeDefinition(), out var genericDefinition))
+                return genericDefinition;
 
-            return scorePairs.OrderBy(x => x.Value).ElementAt(0).Key;
+            var typeInterfaces = type.GetInterfaces();
+            var candidates = _genericTypeConverters.Where(x => x.Key.IsAssignableFrom(type))
+                .OrderByDescending(x => typeInterfaces.Count(y => y.IsAssignableFrom(x.Key)));
+
+            return candidates.First().Value;
         }
 
         private void EnsureClientReady()

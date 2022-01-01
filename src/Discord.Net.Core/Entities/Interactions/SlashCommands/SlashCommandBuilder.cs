@@ -40,6 +40,9 @@ namespace Discord
                 if (!Regex.IsMatch(value, @"^[\w-]{1,32}$"))
                     throw new ArgumentException("Command name cannot contain any special characters or whitespaces!", nameof(value));
 
+                if (value.Any(x => char.IsUpper(x)))
+                    throw new FormatException("Name cannot contain any uppercase characters.");
+
                 _name = value;
             }
         }
@@ -394,7 +397,7 @@ namespace Discord
         /// <param name="maxValue">The largest number value the user can input.</param>
         /// <returns>The current builder.</returns>
         public SlashCommandOptionBuilder AddOption(string name, ApplicationCommandOptionType type,
-           string description, bool? required = null, bool isDefault = false, bool isAutocomplete = false, double? minValue = null, double? maxValue = null,
+           string description, bool? isRequired = null, bool isDefault = false, bool isAutocomplete = false, double? minValue = null, double? maxValue = null,
            List<SlashCommandOptionBuilder> options = null, List<ChannelType> channelTypes = null, params ApplicationCommandOptionChoiceProperties[] choices)
         {
             // Make sure the name matches the requirements from discord
@@ -420,7 +423,7 @@ namespace Discord
             {
                 Name = name,
                 Description = description,
-                IsRequired = required,
+                IsRequired = isRequired,
                 IsDefault = isDefault,
                 IsAutocomplete = isAutocomplete,
                 MinValue = minValue,
@@ -519,7 +522,7 @@ namespace Discord
             Preconditions.AtLeast(name.Length, 1, nameof(name));
             Preconditions.AtMost(name.Length, 100, nameof(name));
 
-            if (value is string str)
+            if(value is string str)
             {
                 Preconditions.AtLeast(str.Length, 1, nameof(value));
                 Preconditions.AtMost(str.Length, 100, nameof(value));
@@ -614,7 +617,7 @@ namespace Discord
             MinValue = value;
             return this;
         }
-
+        
         /// <summary>
         ///     Sets the current builders max value field.
         /// </summary>
