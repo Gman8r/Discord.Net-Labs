@@ -18,6 +18,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img width="100%" src="https://gist.githubusercontent.com/MrCakeSlayer/cfd51f87a5b38918325869402e48ce71/raw/ccfa66373fdb7db8eb5d3c22b184053f4e3d4801/Alert-Labs.svg">
+</p>
+
 ## What is labs?
 
 Discord.NET Labs is an experimental branch of [Discord.NET](https://github.com/discord-net/Discord.Net) that introduces the newest features of discord for testing and experimenting.
@@ -31,7 +35,8 @@ Nothing here is guaranteed to work but you are more than welcome to submit bugs 
 - 📚 [Guides](https://labs.discordnet.dev/guides/introduction/intro.html)
 
 ## Sponsor us! ❤
-- If this library benefits you consider [sponsoring](https://github.com/sponsors/quinchs) the project as it really helps out. *Only sponsor if you're financially stable!*
+- If this library benefits you consider sponsoring us through [Open Collective](
+opencollective.com/discordnet), [Github Sponsors](https://github.com/sponsors/quinchs), or [Paypal](https://www.paypal.com/paypalme/quinchs). Your financial contributions help us pay for Discord.Net related services like our doc hosts. *Only sponsor if you're financially stable!*
 
 ## Known compatibility issues
 

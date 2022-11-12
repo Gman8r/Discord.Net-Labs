@@ -50,6 +50,19 @@ namespace Discord
         IUser User { get; }
 
         /// <summary>
+        ///     The preferred locale of the invoking User.
+        /// </summary>
+        string UserLocale { get; }
+
+        /// <summary>
+        ///     The preferred locale of the guild this interaction was executed in. <see cref="null"/> if not executed in a guild.
+        /// </summary>
+        /// <remarks>
+        ///     Non-community guilds (With no locale setting available) will have en-US as the default value sent by Discord.
+        /// </remarks>
+        string GuildLocale { get; }
+
+        /// <summary>
         ///     Responds to an Interaction with type <see cref="InteractionResponseType.ChannelMessageWithSource"/>.
         /// </summary>
         /// <param name="text">The text of the message to be sent.</param>
@@ -319,5 +332,13 @@ namespace Discord
         ///     A task that represents the asynchronous operation of deferring the interaction.
         /// </returns>
         Task DeferAsync(bool ephemeral = false, RequestOptions options = null);
+
+        /// <summary>
+        ///     Responds to the interaction with a modal.
+        /// </summary>
+        /// <param name="modal">The modal to respond with.</param>
+        /// <param name="options">The request options for this <see langword="async"/> request.</param>
+        /// <returns>A task that represents the asynchronous operation of responding to the interaction.</returns>
+        Task RespondWithModalAsync(Modal modal, RequestOptions options = null);
     }
 }
