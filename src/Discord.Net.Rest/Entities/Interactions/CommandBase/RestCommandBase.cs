@@ -292,8 +292,9 @@ namespace Discord.Rest
         /// </returns>
         public override string Defer(bool ephemeral = false, RequestOptions options = null)
         {
-            if (!InteractionHelper.CanSendResponse(this))
-                throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds!");
+            // Host clock often descyncs, this won't work out
+            //if (!InteractionHelper.CanSendResponse(this))
+            //    throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds!");
 
             var response = new API.InteractionResponse
             {

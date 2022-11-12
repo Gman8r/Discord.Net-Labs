@@ -17,7 +17,8 @@ namespace Discord.Rest
         #region InteractionHelper
         public static bool CanSendResponse(IDiscordInteraction interaction)
         {
-            return (DateTime.UtcNow - interaction.CreatedAt).TotalSeconds < ResponseTimeLimit;
+            return true;
+            //return (DateTime.UtcNow - interaction.CreatedAt).TotalSeconds < ResponseTimeLimit;
         }
         public static bool CanRespondOrFollowup(IDiscordInteraction interaction)
         {
