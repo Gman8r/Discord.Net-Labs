@@ -55,6 +55,10 @@ namespace Discord
         /// </summary>
         ushort DiscriminatorValue { get; }
         /// <summary>
+        ///     Gets the global display name for this user.
+        /// </summary>
+        string GlobalName { get; }
+        /// <summary>
         ///     Gets a value that indicates whether this user is identified as a bot.
         /// </summary>
         /// <remarks>

@@ -79,9 +79,11 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the user's default avatar when one isn't set.
         /// </returns>
-        public static string GetDefaultUserAvatarUrl(ushort discriminator)
+        public static string GetDefaultUserAvatarUrl(ulong userId, ushort discriminator)
         {
-            return $"{DiscordConfig.CDNUrl}embed/avatars/{discriminator % 5}.png";
+            return (discriminator == 0)
+                ? $"{DiscordConfig.CDNUrl}embed/avatars/{(userId >> 22) % 6}.png"
+                : $"{DiscordConfig.CDNUrl}embed/avatars/{discriminator % 5}.png";
         }
         /// <summary>
         ///     Returns an icon URL.

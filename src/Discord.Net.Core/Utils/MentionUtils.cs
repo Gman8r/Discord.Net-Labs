@@ -186,12 +186,12 @@ namespace Discord
                             return "";
                     case TagHandling.FullName:
                         if (user != null)
-                            return $"@{user.Username}#{user.Discriminator}";
+                            return $"@{user.Username}";
                         else
                             return "";
                     case TagHandling.FullNameNoPrefix:
                         if (user != null)
-                            return $"{user.Username}#{user.Discriminator}";
+                            return $"{user.Username}";
                         else
                             return "";
                     case TagHandling.Sanitize:

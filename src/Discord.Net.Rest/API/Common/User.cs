@@ -10,6 +10,8 @@ namespace Discord.API
         public Optional<string> Username { get; set; }
         [JsonProperty("discriminator")]
         public Optional<string> Discriminator { get; set; }
+        [JsonProperty("global_name")]
+        public Optional<string> GlobalName { get; set; }
         [JsonProperty("bot")]
         public Optional<bool> Bot { get; set; }
         [JsonProperty("avatar")]

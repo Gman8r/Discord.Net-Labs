@@ -15,8 +15,11 @@ namespace Discord.WebSocket
     {
         /// <inheritdoc />
         public override string Username { get; internal set; }
+
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get; internal set; }
+        /// <inheritdoc />
+        public override string GlobalName { get; internal set; }
         /// <inheritdoc />
         public override string AvatarId { get; internal set; }
 
@@ -43,7 +46,7 @@ namespace Discord.WebSocket
             return entity;
         }
 
-        private string DebuggerDisplay => $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Unknown)";
+        private string DebuggerDisplay => $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Unknown)";
         internal new SocketUnknownUser Clone() => MemberwiseClone() as SocketUnknownUser;
     }
 }

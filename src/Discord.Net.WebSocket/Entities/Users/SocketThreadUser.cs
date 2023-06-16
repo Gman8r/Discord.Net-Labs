@@ -68,6 +68,13 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
+        public override string GlobalName
+        {
+            get => GuildUser.GlobalName;
+            internal set => GuildUser.GlobalName = value;
+        }
+
+        /// <inheritdoc/>
         public override bool IsBot
         {
             get => GuildUser.IsBot;

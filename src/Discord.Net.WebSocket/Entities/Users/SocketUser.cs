@@ -23,6 +23,7 @@ namespace Discord.WebSocket
         public abstract string Username { get; internal set; }
         /// <inheritdoc />
         public abstract ushort DiscriminatorValue { get; internal set; }
+        public abstract string GlobalName { get; internal set; }
         /// <inheritdoc />
         public abstract string AvatarId { get; internal set; }
         /// <inheritdoc />
@@ -75,6 +76,15 @@ namespace Discord.WebSocket
                     hasChanges = true;
                 }
             }
+            if (model.GlobalName.IsSpecified)
+            {
+                var newVal = model.GlobalName.Value;
+                if (newVal != GlobalName)
+                {
+                    GlobalName = model.GlobalName.Value;
+                    hasChanges = true;
+                }
+            }
             if (model.Bot.IsSpecified && model.Bot.Value != IsBot)
             {
                 IsBot = model.Bot.Value;
@@ -109,7 +119,7 @@ namespace Discord.WebSocket
 
         /// <inheritdoc />
         public string GetDefaultAvatarUrl()
-            => CDN.GetDefaultUserAvatarUrl(DiscriminatorValue);
+            => CDN.GetDefaultUserAvatarUrl(Id, DiscriminatorValue);
 
         /// <summary>
         ///     Gets the full name of the user (e.g. Example#0001).
@@ -117,8 +127,8 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The full name of the user.
         /// </returns>
-        public override string ToString() => Format.UsernameAndDiscriminator(this);
-        private string DebuggerDisplay => $"{Format.UsernameAndDiscriminator(this)} ({Id}{(IsBot ? ", Bot" : "")})";
+        public override string ToString() => Username;
+        private string DebuggerDisplay => $"{Username} ({Id}{(IsBot ? ", Bot" : "")})";
         internal SocketUser Clone() => MemberwiseClone() as SocketUser;
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Model = Discord.API.User;
 using EventUserModel = Discord.API.GuildScheduledEventUser;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace Discord.Rest
 {
@@ -22,6 +23,8 @@ namespace Discord.Rest
         public string Username { get; private set; }
         /// <inheritdoc />
         public ushort DiscriminatorValue { get; private set; }
+        /// <inheritdoc />
+        public string GlobalName { get; private set; }
         /// <inheritdoc />
         public string AvatarId { get; private set; }
         /// <inheritdoc />
@@ -86,6 +89,8 @@ namespace Discord.Rest
                 AccentColor = model.AccentColor.Value;
             if (model.Discriminator.IsSpecified)
                 DiscriminatorValue = ushort.Parse(model.Discriminator.Value, NumberStyles.None, CultureInfo.InvariantCulture);
+            if (model.GlobalName.IsSpecified)
+                GlobalName = model.GlobalName.Value;
             if (model.Bot.IsSpecified)
                 IsBot = model.Bot.Value;
             if (model.Username.IsSpecified)
@@ -121,7 +126,7 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         public string GetDefaultAvatarUrl()
-            => CDN.GetDefaultUserAvatarUrl(DiscriminatorValue);
+            => CDN.GetDefaultUserAvatarUrl(Id, DiscriminatorValue);
 
         /// <summary>
         ///     Gets the Username#Discriminator of the user.
@@ -129,8 +134,8 @@ namespace Discord.Rest
         /// <returns>
         ///     A string that resolves to Username#Discriminator of the user.
         /// </returns>
-        public override string ToString() => Format.UsernameAndDiscriminator(this);
-        private string DebuggerDisplay => $"{Format.UsernameAndDiscriminator(this)} ({Id}{(IsBot ? ", Bot" : "")})";
+        public override string ToString() => Username;
+        private string DebuggerDisplay => $"{Username} ({Id}{(IsBot ? ", Bot" : "")})";
         #endregion
 
         #region IUser
