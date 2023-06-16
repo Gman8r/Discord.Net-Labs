@@ -65,20 +65,31 @@ namespace Discord.Commands
                     .Where(x => string.Equals(input, x.Username, StringComparison.OrdinalIgnoreCase))
                     .ForEachAsync(channelUser => AddResult(results, channelUser as T, channelUser.Username == input ? 0.65f : 0.55f))
                     .ConfigureAwait(false);
-                
+
                 foreach (var guildUser in guildUsers.Where(x => string.Equals(input, x.Username, StringComparison.OrdinalIgnoreCase)))
                     AddResult(results, guildUser as T, guildUser.Username == input ? 0.60f : 0.50f);
             }
 
-            //By Nickname (0.5-0.6)
+            //By Global Name (0.5-0.6)
+            {
+                await channelUsers
+                    .Where(x => string.Equals(input, x.GlobalName, StringComparison.OrdinalIgnoreCase))
+                    .ForEachAsync(channelUser => AddResult(results, channelUser as T, channelUser.GlobalName == input ? 0.55f : 0.45f))
+                    .ConfigureAwait(false);
+
+                foreach (var guildUser in guildUsers.Where(x => string.Equals(input, x.GlobalName, StringComparison.OrdinalIgnoreCase)))
+                    AddResult(results, guildUser as T, guildUser.GlobalName == input ? 0.50f : 0.40f);
+            }
+
+            //By Nickname (0.4-0.5)
             {
                 await channelUsers
                     .Where(x => string.Equals(input, (x as IGuildUser)?.Nickname, StringComparison.OrdinalIgnoreCase))
-                    .ForEachAsync(channelUser => AddResult(results, channelUser as T, (channelUser as IGuildUser).Nickname == input ? 0.65f : 0.55f))
+                    .ForEachAsync(channelUser => AddResult(results, channelUser as T, (channelUser as IGuildUser).Nickname == input ? 0.45f : 0.35f))
                     .ConfigureAwait(false);
 
                 foreach (var guildUser in guildUsers.Where(x => string.Equals(input, x.Nickname, StringComparison.OrdinalIgnoreCase)))
-                    AddResult(results, guildUser as T, guildUser.Nickname == input ? 0.60f : 0.50f);
+                    AddResult(results, guildUser as T, guildUser.Nickname == input ? 0.50f : 0.40f);
             }
 
             if (results.Count > 0)
